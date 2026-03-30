@@ -13,7 +13,7 @@ void main() async {
   final token = box.read('token');
 
   bool isTokenExpired = token == null || JwtDecoder.isExpired(token);
-  runApp(MyApp(initialRoute: isTokenExpired ? Routes.STARTED : Routes.HOME));
+  runApp(MyApp(initialRoute: isTokenExpired ? Routes.STARTED : Routes.LAYOUT));
 }
 
 class MyApp extends StatelessWidget {

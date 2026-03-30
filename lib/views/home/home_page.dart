@@ -19,7 +19,6 @@ class _HomePageState extends State<HomePage>
   late Animation<double> _headerFade;
   late Animation<Offset> _headerSlide;
 
-  // Prayer times data
   final List<Map<String, String>> _prayerTimes = const [
     {'name': 'Subuh', 'time': '04:35', 'icon': '🌙'},
     {'name': 'Dzuhur', 'time': '11:52', 'icon': '☀️'},
@@ -189,7 +188,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  // ─── HEADER ───────────────────────────────────────────────────────────────
   Widget _buildHeader() {
     return FadeTransition(
       opacity: _headerFade,
@@ -207,26 +205,20 @@ class _HomePageState extends State<HomePage>
           ),
           child: Stack(
             children: [
-              // Decorative mosque silhouette
+              // Decorative background image
               Positioned(
                 right: 0,
                 bottom: 0,
                 child: Opacity(
-                  opacity: 0.07,
-                  child: Icon(Icons.mosque_rounded,
-                      size: 180, color: Colors.white),
+                  opacity: 0.70,
+                  child: Image.asset(
+                    'images/decorate_header.jpg',
+                    width: 500,
+                    height: 500,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-              // Star pattern
-              Positioned(
-                left: -20,
-                top: 40,
-                child: Opacity(
-                  opacity: 0.06,
-                  child: Icon(Icons.star, size: 120, color: Colors.white),
-                ),
-              ),
-
               SafeArea(
                 bottom: false,
                 child: Padding(
@@ -251,7 +243,7 @@ class _HomePageState extends State<HomePage>
                               ),
                               const SizedBox(height: 2),
                               const Text(
-                                'Santri Nurul Huda',
+                                'Nurul Huda',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 17,
@@ -419,7 +411,6 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  // ─── SEARCH BAR ───────────────────────────────────────────────────────────
   Widget _buildSearchBar() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),

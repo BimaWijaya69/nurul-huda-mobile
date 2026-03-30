@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nurul_huda_mobile/views/guru/soal/soal_page.dart';
+import 'package:nurul_huda_mobile/views/guru/soal/soal_controller.dart';
 import 'package:nurul_huda_mobile/views/layout_controller.dart';
 import 'package:nurul_huda_mobile/views/home/home_page.dart';
+import 'package:nurul_huda_mobile/views/absensi/absensi_page.dart';
+import 'package:nurul_huda_mobile/views/bantuan/bantuan_page.dart';
+import 'package:nurul_huda_mobile/views/profil/profil_page.dart';
 
 class Layout extends StatelessWidget {
-  const Layout({Key? key}) : super(key: key);
+  const Layout({super.key});
 
   static const _green = Color(0xFF1B7A3E);
   static const _grey = Color(0xFFB0B8C1);
@@ -12,9 +17,14 @@ class Layout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LayoutController controller = Get.put(LayoutController());
+    Get.put(SoalController());
 
     final List<Widget> pages = [
+      const SoalPage(),
+      const AbsensiPage(),
       const HomePage(),
+      const BantuanPage(),
+      const ProfilPage(),
     ];
 
     return Scaffold(
@@ -56,15 +66,15 @@ class Layout extends StatelessWidget {
                 currentIndex: currentIndex,
                 icon: Icons.menu_book_outlined,
                 activeIcon: Icons.menu_book_rounded,
-                label: 'Wirid',
+                label: 'Soal Ujian',
                 onTap: onTap,
               ),
               _buildNavItem(
                 index: 1,
                 currentIndex: currentIndex,
-                icon: Icons.account_balance_outlined,
-                activeIcon: Icons.account_balance_rounded,
-                label: 'Mondok',
+                icon: Icons.assignment_outlined,
+                activeIcon: Icons.assignment_rounded,
+                label: 'Absensi',
                 onTap: onTap,
               ),
 
