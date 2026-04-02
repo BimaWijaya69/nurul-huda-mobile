@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class BantuanPage extends StatelessWidget {
-  const BantuanPage({super.key});
+class NilaiPage extends StatelessWidget {
+  const NilaiPage({super.key});
 
   static const _green = Color(0xFF1B7A3E);
 
@@ -40,7 +40,7 @@ class BantuanPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                'Fitur Bantuan sedang kami kembangkan untuk memberikan pengalaman terbaik',
+                'Fitur Nilai sedang kami kembangkan untuk memberikan pengalaman terbaik',
                 style: TextStyle(
                   fontSize: 14,
                   color: const Color(0xFF6B7280),

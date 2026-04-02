@@ -5,7 +5,7 @@ import 'package:nurul_huda_mobile/views/guru/soal/soal_controller.dart';
 import 'package:nurul_huda_mobile/views/layout_controller.dart';
 import 'package:nurul_huda_mobile/views/home/home_page.dart';
 import 'package:nurul_huda_mobile/views/absensi/absensi_page.dart';
-import 'package:nurul_huda_mobile/views/bantuan/bantuan_page.dart';
+import 'package:nurul_huda_mobile/views/nilai/nilai_page.dart';
 import 'package:nurul_huda_mobile/views/profil/profil_page.dart';
 
 class Layout extends StatelessWidget {
@@ -23,7 +23,7 @@ class Layout extends StatelessWidget {
       const SoalPage(),
       const AbsensiPage(),
       const HomePage(),
-      const BantuanPage(),
+      const NilaiPage(),
       const ProfilPage(),
     ];
 
@@ -88,9 +88,9 @@ class Layout extends StatelessWidget {
               _buildNavItem(
                 index: 3,
                 currentIndex: currentIndex,
-                icon: Icons.help_outline_rounded,
-                activeIcon: Icons.help_rounded,
-                label: 'Bantuan',
+                icon: Icons.leaderboard_outlined,
+                activeIcon: Icons.leaderboard_rounded,
+                label: 'Nilai Santri',
                 onTap: onTap,
               ),
               _buildNavItem(

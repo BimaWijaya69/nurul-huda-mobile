@@ -27,60 +27,6 @@ class _HomePageState extends State<HomePage>
     {'name': 'Isya', 'time': '19:00', 'icon': '🌃'},
   ];
 
-  // Menu items
-  final List<Map<String, dynamic>> _menuItems = const [
-    {
-      'icon': Icons.article_rounded,
-      'label': 'Artikel',
-      'color': Color(0xFF4A90D9)
-    },
-    {
-      'icon': Icons.school_rounded,
-      'label': 'Mondok\nOnline',
-      'color': Color(0xFF7B68EE)
-    },
-    {
-      'icon': Icons.quiz_rounded,
-      'label': 'Tanya\nJawab',
-      'color': Color(0xFFFF6B6B)
-    },
-    {
-      'icon': Icons.menu_book_rounded,
-      'label': 'Al-Quran',
-      'color': Color(0xFF1B7A3E)
-    },
-    {
-      'icon': Icons.auto_stories_rounded,
-      'label': 'Hadits',
-      'color': Color(0xFF1B7A3E)
-    },
-    {
-      'icon': Icons.library_books_rounded,
-      'label': 'Pustaka',
-      'color': Color(0xFFE67E22)
-    },
-    {
-      'icon': Icons.self_improvement_rounded,
-      'label': 'Dzikir &\nIbadah',
-      'color': Color(0xFF16A085)
-    },
-    {
-      'icon': Icons.cast_for_education_rounded,
-      'label': 'Kajian',
-      'color': Color(0xFF8E44AD)
-    },
-    {
-      'icon': Icons.access_time_rounded,
-      'label': 'Jadwal\nSholat',
-      'color': Color(0xFF1B7A3E)
-    },
-    {
-      'icon': Icons.grid_view_rounded,
-      'label': 'Lainnya',
-      'color': Color(0xFF95A5A6)
-    },
-  ];
-
   // Countdown timer
   Duration _countdown = const Duration(hours: 4, minutes: 31, seconds: 26);
   Timer? _timer;
@@ -161,28 +107,37 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // ── Header Banner ──
-          SliverToBoxAdapter(child: _buildHeader()),
+      body: Stack(
+        children: [
+          // ── Background Image ──
+          Positioned.fill(
+            child: Image.asset(
+              'images/background.jpg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          // ── Main Content ──
+          CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // ── Header Banner ──
+              SliverToBoxAdapter(child: _buildHeader()),
 
-          // ── Search Bar ──
-          SliverToBoxAdapter(child: _buildSearchBar()),
+              // ── Search Bar ──
+              SliverToBoxAdapter(child: _buildSearchBar()),
 
-          // ── Menu Grid ──
-          SliverToBoxAdapter(child: _buildMenuSection()),
+              // ── Jadwal Mengajar ──
+              SliverToBoxAdapter(child: _buildJadwalSection()),
 
-          // ── Quick Access Cards ──
-          SliverToBoxAdapter(child: _buildQuickCards()),
+              // ── Quick Access Cards ──
+              SliverToBoxAdapter(child: _buildQuickCards()),
 
-          // ── Jadwal Sholat ──
-          SliverToBoxAdapter(child: _buildPrayerSchedule()),
+              // ── Mading Pesantren ──
+              SliverToBoxAdapter(child: _buildMadingSection()),
 
-          // ── Mading Pesantren ──
-          SliverToBoxAdapter(child: _buildMadingSection()),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            ],
+          ),
         ],
       ),
     );
@@ -210,9 +165,9 @@ class _HomePageState extends State<HomePage>
                 right: 0,
                 bottom: 0,
                 child: Opacity(
-                  opacity: 0.70,
+                  opacity: 0.07,
                   child: Image.asset(
-                    'images/decorate_header.jpg',
+                    'images/header.png',
                     width: 500,
                     height: 500,
                     fit: BoxFit.cover,
@@ -464,7 +419,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _buildMenuSection() {
+  Widget _buildJadwalSection() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(
@@ -473,72 +428,28 @@ class _HomePageState extends State<HomePage>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Menu Utama',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1A1A2E),
-                ),
-              ),
-              TextButton(
-                onPressed: () {},
-                child: const Text(
-                  'Lihat Semua',
-                  style: TextStyle(
-                      color: Color(0xFF1B7A3E),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                ),
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5C842),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Jadwal Mengajar',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF1A1A2E),
+                    ),
+                  ),
+                ],
               ),
             ],
-          ),
-          const SizedBox(height: 8),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-              crossAxisSpacing: 4,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.75,
-            ),
-            itemCount: _menuItems.length,
-            itemBuilder: (ctx, i) => _buildMenuItem(_menuItems[i]),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem(Map<String, dynamic> item) {
-    final color = item['color'] as Color;
-    return GestureDetector(
-      onTap: () {},
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: color.withOpacity(0.2), width: 1),
-            ),
-            child: Icon(item['icon'] as IconData, color: color, size: 26),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            item['label'] as String,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF3D3D3D),
-              height: 1.2,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
           ),
         ],
       ),
@@ -633,129 +544,6 @@ class _HomePageState extends State<HomePage>
               fontWeight: FontWeight.w700,
               color: color,
               height: 1.3,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── PRAYER SCHEDULE ──────────────────────────────────────────────────────
-  Widget _buildPrayerSchedule() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Jadwal Sholat',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF1A1A2E),
-                ),
-              ),
-              Text(
-                _dateStr,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey.shade500,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 12,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              children: List.generate(_prayerTimes.length, (i) {
-                final p = _prayerTimes[i];
-                final isNext = i == 0; // Subuh as "next"
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: isNext
-                        ? const Color(0xFF1B7A3E).withOpacity(0.06)
-                        : Colors.transparent,
-                    borderRadius: i == 0
-                        ? const BorderRadius.vertical(top: Radius.circular(20))
-                        : i == 4
-                            ? const BorderRadius.vertical(
-                                bottom: Radius.circular(20))
-                            : null,
-                    border: i < 4
-                        ? Border(
-                            bottom: BorderSide(
-                              color: Colors.grey.shade100,
-                              width: 1,
-                            ),
-                          )
-                        : null,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(p['icon']!, style: const TextStyle(fontSize: 20)),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Text(
-                          p['name']!,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight:
-                                isNext ? FontWeight.w700 : FontWeight.w500,
-                            color: isNext
-                                ? const Color(0xFF1B7A3E)
-                                : const Color(0xFF3D3D3D),
-                          ),
-                        ),
-                      ),
-                      if (isNext)
-                        Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF5C842).withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            'Berikutnya',
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Color(0xFFB8860B),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      Text(
-                        p['time']!,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                          color: isNext
-                              ? const Color(0xFF1B7A3E)
-                              : const Color(0xFF1A1A2E),
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
             ),
           ),
         ],
