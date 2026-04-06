@@ -4,10 +4,12 @@ import 'package:nurul_huda_mobile/core/routes/app_pages.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
+  await initializeDateFormatting('id_ID', null);
 
   final box = GetStorage();
   final token = box.read('token');

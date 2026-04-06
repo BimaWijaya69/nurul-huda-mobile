@@ -27,15 +27,11 @@ class SoalPage extends GetView<SoalController> {
                     _buildFormHeader(controller),
                     const SizedBox(height: 12),
 
-                    // Info bar
-                    _buildInfoBar(controller),
-                    const SizedBox(height: 12),
-
                     // Label
                     const Text(
                       'Daftar soal',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF6B7280),
                       ),
@@ -115,7 +111,7 @@ class SoalPage extends GetView<SoalController> {
                     'Simpan',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -208,45 +204,7 @@ class SoalPage extends GetView<SoalController> {
     );
   }
 
-  // ─── INFO BAR ───────────────────────────────────────
-  Widget _buildInfoBar(SoalController controller) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE5E7EB), width: 0.5),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _infoItem(controller.jumlahSoal.toString(), 'Soal'),
-          _divider(),
-          _infoItem(controller.totalBobot.toString(), 'Total nilai'),
-          _divider(),
-          Obx(() => _infoItem('${controller.durasi.value}', 'Menit')),
-        ],
-      ),
-    );
-  }
-
-  Widget _infoItem(String val, String label) {
-    return Column(
-      children: [
-        Text(val,
-            style: const TextStyle(
-                fontSize: 20, fontWeight: FontWeight.w700, color: _green)),
-        Text(label,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
-      ],
-    );
-  }
-
-  Widget _divider() {
-    return Container(width: 0.5, height: 32, color: const Color(0xFFE5E7EB));
-  }
-
-  // ─── FAB PREVIEW PRINT ──────────────────────────────
+  // ─── TAB PREVIEW PRINT ──────────────────────────────
   Widget _buildFab(SoalController controller) {
     return GestureDetector(
       onTap: () => _onPreviewPrint(controller),
@@ -276,7 +234,7 @@ class SoalPage extends GetView<SoalController> {
               'Preview & Print',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -353,16 +311,16 @@ class SoalPage extends GetView<SoalController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
         const SizedBox(height: 3),
         TextFormField(
           initialValue: initialValue,
           onChanged: onChanged,
           keyboardType: keyboardType,
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 14),
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+            hintStyle: const TextStyle(fontSize: 13, color: Color(0xFF9CA3AF)),
             filled: true,
             fillColor: const Color(0xFFF5F6FA),
             contentPadding:
@@ -398,7 +356,7 @@ class SoalPage extends GetView<SoalController> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280))),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF6B7280))),
         const SizedBox(height: 3),
         DropdownButtonFormField<String>(
           value: value,
@@ -406,7 +364,7 @@ class SoalPage extends GetView<SoalController> {
           items: items
               .map((e) => DropdownMenuItem(value: e, child: Text(e)))
               .toList(),
-          style: const TextStyle(fontSize: 13, color: Color(0xFF1A1A2E)),
+          style: const TextStyle(fontSize: 14, color: Color(0xFF1A1A2E)),
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFFF5F6FA),

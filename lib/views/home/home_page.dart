@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:nurul_huda_mobile/views/home/widget/jadwal_mengajar_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,14 +20,6 @@ class _HomePageState extends State<HomePage>
   late AnimationController _headerAnim;
   late Animation<double> _headerFade;
   late Animation<Offset> _headerSlide;
-
-  final List<Map<String, String>> _prayerTimes = const [
-    {'name': 'Subuh', 'time': '04:35', 'icon': '🌙'},
-    {'name': 'Dzuhur', 'time': '11:52', 'icon': '☀️'},
-    {'name': 'Ashar', 'time': '15:09', 'icon': '🌤'},
-    {'name': 'Maghrib', 'time': '17:43', 'icon': '🌅'},
-    {'name': 'Isya', 'time': '19:00', 'icon': '🌃'},
-  ];
 
   // Countdown timer
   Duration _countdown = const Duration(hours: 4, minutes: 31, seconds: 26);
@@ -75,32 +69,16 @@ class _HomePageState extends State<HomePage>
 
   String get _timeStr => '${_padTwo(_now.hour)}:${_padTwo(_now.minute)}';
 
+  String get _dayAndTimeStr {
+    return DateFormat('EEEE HH:mm', 'id_ID').format(_now);
+  }
+
+  String get _fullDateStr {
+    return DateFormat('d MMMM y', 'id_ID').format(_now);
+  }
+
   String get _dateStr {
-    const months = [
-      '',
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember'
-    ];
-    const days = [
-      'Minggu',
-      'Senin',
-      'Selasa',
-      'Rabu',
-      'Kamis',
-      'Jumat',
-      'Sabtu'
-    ];
-    return '${days[_now.weekday % 7]}, ${_now.day} ${months[_now.month]} ${_now.year}';
+    return DateFormat('EEEE, d MMMM y', 'id_ID').format(_now);
   }
 
   @override
@@ -192,7 +170,7 @@ class _HomePageState extends State<HomePage>
                                 'Assalamu\'alaikum 👋',
                                 style: TextStyle(
                                   color: Colors.white.withOpacity(0.85),
-                                  fontSize: 13,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                 ),
                               ),
@@ -201,7 +179,7 @@ class _HomePageState extends State<HomePage>
                                 'Nurul Huda',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 17,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
@@ -249,7 +227,7 @@ class _HomePageState extends State<HomePage>
                             'MANGUNSARI, TEKUNG, LUMAJANG',
                             style: TextStyle(
                               color: Colors.white.withOpacity(0.85),
-                              fontSize: 11,
+                              fontSize: 14,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1,
                             ),
@@ -259,20 +237,21 @@ class _HomePageState extends State<HomePage>
 
                       const SizedBox(height: 8),
 
-                      // Next prayer name + time
-                      const Text(
-                        'Imsak 04:35',
-                        style: TextStyle(
+                      // Day + Current Time (Large display)
+                      Text(
+                        _dayAndTimeStr,
+                        style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 36,
+                          fontSize: 38,
                           fontWeight: FontWeight.w900,
                           letterSpacing: -0.5,
+                          fontFeatures: [FontFeature.tabularFigures()],
                         ),
                       ),
 
                       const SizedBox(height: 6),
 
-                      // Countdown
+                      // Full Date (Tanggal Bulan Tahun)
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 18, vertical: 6),
@@ -281,53 +260,25 @@ class _HomePageState extends State<HomePage>
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          _countdownStr,
+                          _fullDateStr,
                           style: const TextStyle(
                             color: _gold,
                             fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 2,
-                            fontFeatures: [FontFeature.tabularFigures()],
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
                           ),
                         ),
                       ),
 
                       const SizedBox(height: 16),
 
-                      // Bottom row: Ubah Lokasi + current time + Arah Kiblat
+                      // Bottom row: Ubah Lokasi + Reset + Arah Kiblat
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _headerChip(
-                              Icons.edit_location_alt_rounded, 'Ubah Lokasi'),
-                          // Live clock
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.access_time_rounded,
-                                    color: Colors.white, size: 14),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _timeStr,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    fontFeatures: [
-                                      FontFeature.tabularFigures()
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          _headerChip(Icons.explore_rounded, 'Arah Kiblat'),
+                          _headerChip(Icons.schedule_rounded, 'Jadwal Absensi'),
+                          _headerChip(Icons.assignment_turned_in_rounded,
+                              'Riwayat Absensi'),
                         ],
                       ),
                     ],
@@ -351,13 +302,13 @@ class _HomePageState extends State<HomePage>
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.white, size: 13),
+          Icon(icon, color: Colors.white, size: 16),
           const SizedBox(width: 4),
           Text(
             label,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 11,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -395,12 +346,12 @@ class _HomePageState extends State<HomePage>
                   hintText: 'Cari kajian, jadwal, info santri...',
                   hintStyle: TextStyle(
                     color: Colors.grey.shade400,
-                    fontSize: 13,
+                    fontSize: 16,
                   ),
                   border: InputBorder.none,
                   isDense: true,
                 ),
-                style: const TextStyle(fontSize: 13),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
             Container(
@@ -425,38 +376,12 @@ class _HomePageState extends State<HomePage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5C842),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Jadwal Mengajar',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+          JadwalMengajarWidget(jadwalList: dummyJadwal),
         ],
       ),
     );
   }
 
-  // ─── QUICK ACCESS CARDS ───────────────────────────────────────────────────
   Widget _buildQuickCards() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
@@ -528,7 +453,7 @@ class _HomePageState extends State<HomePage>
                         child: Text(badge,
                             style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 8,
+                                fontSize: 10,
                                 fontWeight: FontWeight.bold)),
                       ),
                     ),
@@ -540,7 +465,7 @@ class _HomePageState extends State<HomePage>
           Text(
             label,
             style: TextStyle(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w700,
               color: color,
               height: 1.3,
@@ -593,7 +518,7 @@ class _HomePageState extends State<HomePage>
                   const Text(
                     'Mading Pesantren',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: Color(0xFF1A1A2E),
                     ),
@@ -605,7 +530,7 @@ class _HomePageState extends State<HomePage>
                 child: const Text('Semua',
                     style: TextStyle(
                         color: Color(0xFF1B7A3E),
-                        fontSize: 12,
+                        fontSize: 15,
                         fontWeight: FontWeight.w600)),
               ),
             ],
@@ -658,7 +583,7 @@ class _HomePageState extends State<HomePage>
                 Text(
                   item['title']!,
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF1A1A2E),
                     height: 1.3,
@@ -679,7 +604,7 @@ class _HomePageState extends State<HomePage>
                       child: Text(
                         item['category']!,
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 12,
                           color: color,
                           fontWeight: FontWeight.w600,
                         ),
@@ -689,7 +614,7 @@ class _HomePageState extends State<HomePage>
                     Text(
                       item['date']!,
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 12,
                         color: Colors.grey.shade400,
                       ),
                     ),

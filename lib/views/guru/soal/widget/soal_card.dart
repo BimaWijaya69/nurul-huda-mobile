@@ -77,7 +77,7 @@ class SoalCard extends StatelessWidget {
                 child: Text(
                   '$nomor',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: isExpanded ? Colors.white : _green,
                   ),
@@ -92,14 +92,14 @@ class SoalCard extends StatelessWidget {
                   ? Text(
                       soal.soalLatin,
                       style: const TextStyle(
-                          fontSize: 13, color: Color(0xFF1A1A2E)),
+                          fontSize: 15, color: Color(0xFF1A1A2E)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     )
                   : Text(
                       'Soal belum diisi',
                       style:
-                          TextStyle(fontSize: 13, color: Colors.grey.shade400),
+                          TextStyle(fontSize: 15, color: Colors.grey.shade400),
                     ),
             ),
             const SizedBox(width: 8),
@@ -142,10 +142,6 @@ class SoalCard extends StatelessWidget {
 
               // Pedoman penilaian essay
               _buildEssayContent(),
-              const SizedBox(height: 10),
-
-              // Bobot nilai
-              _buildBobotRow(),
             ],
           ),
         ),
@@ -164,7 +160,7 @@ class SoalCard extends StatelessWidget {
           onChanged: (v) => controller.updateSoalLatin(soal.id, v),
           maxLines: 3,
           minLines: 2,
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 15),
           decoration: _inputDecoration('Tulis soal dalam huruf latin...'),
         ),
       ],
@@ -192,7 +188,7 @@ class SoalCard extends StatelessWidget {
             : const Text('و', style: TextStyle(fontSize: 16)),
         label: Text(
           isLoading ? 'Memproses...' : 'Transliterasi ke Aksara Pegon',
-          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
       ),
     );
@@ -210,7 +206,7 @@ class SoalCard extends StatelessWidget {
       child: Text(
         soal.soalPegon,
         style: const TextStyle(
-          fontSize: 18,
+          fontSize: 20,
           color: Color(0xFF0D4A24),
           height: 1.8,
         ),
@@ -231,29 +227,8 @@ class SoalCard extends StatelessWidget {
           onChanged: (v) => controller.updatePedomanEssay(soal.id, v),
           maxLines: 3,
           minLines: 2,
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 15),
           decoration: _inputDecoration('Tulis pedoman penilaian...'),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBobotRow() {
-    return Row(
-      children: [
-        Text('Bobot nilai:',
-            style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
-        const SizedBox(width: 10),
-        SizedBox(
-          width: 64,
-          child: TextFormField(
-            initialValue: soal.bobot.toString(),
-            onChanged: (v) =>
-                controller.updateBobot(soal.id, int.tryParse(v) ?? 10),
-            keyboardType: TextInputType.number,
-            style: const TextStyle(fontSize: 13),
-            decoration: _inputDecoration('10'),
-          ),
         ),
       ],
     );
@@ -262,13 +237,13 @@ class SoalCard extends StatelessWidget {
   // ─── Helpers ──────────────────────────────────────
   Widget _fieldLabel(String text) {
     return Text(text,
-        style: TextStyle(fontSize: 11, color: Colors.grey.shade500));
+        style: TextStyle(fontSize: 13, color: Colors.grey.shade500));
   }
 
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+      hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
       filled: true,
       fillColor: const Color(0xFFF5F6FA),
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
