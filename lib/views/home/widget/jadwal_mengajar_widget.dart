@@ -131,7 +131,9 @@ final List<JadwalItem> dummyJadwal = [
 ];
 
 // ─────────────────────────────────────────────
-//  MAIN WIDGET
+//  WIDGET  ← hanya isi tabel, TANPA section header
+//  Section header "Jadwal Mengajar" tetap
+//  dikelola di home_page.dart seperti section lain
 // ─────────────────────────────────────────────
 class JadwalMengajarWidget extends StatefulWidget {
   final List<JadwalItem> jadwalList;
@@ -199,7 +201,6 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
   }
 
   String _getHijri(DateTime date) {
-    // Simplified Hijri approximation
     final jd = (date.millisecondsSinceEpoch / 86400000 + 2440587.5).floor();
     final l = jd - 1948440 + 10632;
     final n = ((l - 1) / 10631).floor();
@@ -212,7 +213,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
         29;
     final month = ((24 * l3) / 709).floor();
     final day = l3 - ((709 * month) / 24).floor();
-    const hijriMonths = [
+    const hm = [
       '',
       'Muh',
       'Saf',
@@ -227,7 +228,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
       'Zul-Q',
       'Zul-H'
     ];
-    return '$day ${hijriMonths[month]}';
+    return '$day ${hm[month]}';
   }
 
   JadwalItem? _getEntry(int hari, String jam) {
@@ -249,75 +250,16 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     final week = _getWeekDates();
     final now = DateTime.now();
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Header ──
-          _buildHeader(),
-          const SizedBox(height: 10),
-
-          // ── Today Banner ──
-          _buildTodayBanner(now),
-          const SizedBox(height: 8),
-
-          // ── Week Navigation ──
-          _buildWeekNav(week),
-          const SizedBox(height: 8),
-
-          // ── Table ──
-          _buildTable(week),
-          const SizedBox(height: 10),
-
-          // ── Footer: Legend + Total ──
-          _buildFooter(),
-        ],
-      ),
-    );
-  }
-
-  // ─── Header ───────────────────────────────
-  Widget _buildHeader() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-            width: 4,
-            height: 20,
-            decoration: BoxDecoration(
-                color: _gold, borderRadius: BorderRadius.circular(2))),
-        const SizedBox(width: 8),
-        const Text('Jadwal Mengajar',
-            style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF1A1A2E))),
-        const SizedBox(width: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-          decoration: BoxDecoration(
-              color: _greenLight,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFC3E6D0))),
-          child: Text('${widget.jadwalList.length} sesi',
-              style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: _greenDark)),
-        ),
-        const Spacer(),
-        GestureDetector(
-          onTap: () {},
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 4),
-            decoration: BoxDecoration(
-                border: Border.all(color: _green),
-                borderRadius: BorderRadius.circular(20)),
-            child: const Text('Semua',
-                style: TextStyle(
-                    fontSize: 12, color: _green, fontWeight: FontWeight.w600)),
-          ),
-        ),
+        _buildTodayBanner(now),
+        const SizedBox(height: 8),
+        _buildWeekNav(week),
+        const SizedBox(height: 8),
+        _buildTable(week),
+        const SizedBox(height: 10),
+        _buildFooter(),
       ],
     );
   }
@@ -345,9 +287,11 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
                 fontSize: 11, fontWeight: FontWeight.w600, color: _greenDark),
           ),
           const Spacer(),
-          Text('$_todaySesiCount sesi mengajar',
-              style: const TextStyle(
-                  fontSize: 11, fontWeight: FontWeight.w700, color: _green)),
+          Text(
+            '$_todaySesiCount sesi',
+            style: const TextStyle(
+                fontSize: 11, fontWeight: FontWeight.w700, color: _green),
+          ),
         ],
       ),
     );
@@ -355,10 +299,8 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
 
   // ─── Week Navigation ──────────────────────
   Widget _buildWeekNav(List<DateTime> week) {
-    final start = week.first;
-    final end = week.last;
     final label =
-        '${start.day}/${start.month} – ${end.day}/${end.month} ${end.year}';
+        '${week.first.day}/${week.first.month} – ${week.last.day}/${week.last.month} ${week.last.year}';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -369,12 +311,13 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
           _navBtn(
               Icons.chevron_left_rounded, () => setState(() => _weekOffset--)),
           Expanded(
-              child: Text(label,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF888888)))),
+            child: Text(label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF888888))),
+          ),
           _navBtn(
               Icons.chevron_right_rounded, () => setState(() => _weekOffset++)),
         ],
@@ -382,20 +325,19 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     );
   }
 
-  Widget _navBtn(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 28,
-        height: 28,
-        decoration: BoxDecoration(
+  Widget _navBtn(IconData icon, VoidCallback onTap) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFE5E5E5))),
-        child: Icon(icon, size: 18, color: _green),
-      ),
-    );
-  }
+            border: Border.all(color: const Color(0xFFE5E5E5)),
+          ),
+          child: Icon(icon, size: 18, color: _green),
+        ),
+      );
 
   // ─── Table ────────────────────────────────
   Widget _buildTable(List<DateTime> week) {
@@ -420,7 +362,6 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     return IntrinsicHeight(
       child: Row(
         children: [
-          // time column placeholder
           Container(width: 36, color: const Color(0xFFFAFAFA)),
           ...List.generate(6, (i) {
             final d = week[i];
@@ -438,6 +379,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
                   ),
                 ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(_days[i + 1],
                         style: TextStyle(
@@ -450,7 +392,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
                     const SizedBox(height: 1),
                     Text('${d.day}',
                         style: TextStyle(
-                            fontSize: 17,
+                            fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: today ? _green : const Color(0xFF1A1A2E))),
                     const SizedBox(height: 1),
@@ -479,7 +421,6 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // time cell
             Container(
               width: 36,
               color: const Color(0xFFFAFAFA),
@@ -491,14 +432,13 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
                       style: const TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1B7A3E))),
+                          color: _green)),
                   Text(sesiLabel,
                       style: const TextStyle(
                           fontSize: 8, color: Color(0xFFCCCCCC))),
                 ],
               ),
             ),
-            // day cells
             ...List.generate(6, (i) {
               final today = _isToday(week[i]);
               final entry = _getEntry(i + 1, jam);
@@ -565,13 +505,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     );
   }
 
-  Widget _buildEmptyDot() {
-    return Container(
-        width: 4,
-        height: 4,
-        decoration: const BoxDecoration(
-            color: Color(0xFFF0F0F0), shape: BoxShape.circle));
-  }
+  Widget _buildEmptyDot() => const SizedBox.shrink();
 
   // ─── Footer ───────────────────────────────
   Widget _buildFooter() {
@@ -584,6 +518,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     ];
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Wrap(
           spacing: 10,
@@ -612,9 +547,10 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-              color: const Color(0xFFF0FAF4),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFD4EDDC))),
+            color: const Color(0xFFF0FAF4),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFD4EDDC)),
+          ),
           child: Row(
             children: [
               const Icon(Icons.info_outline_rounded, size: 14, color: _green),
