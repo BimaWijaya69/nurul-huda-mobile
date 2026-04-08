@@ -5,23 +5,17 @@ import 'package:flutter/material.dart';
 // ─────────────────────────────────────────────
 class JadwalItem {
   final int hari; // 1=Senin … 6=Sabtu
-  final String jam; // e.g. '07:00'
-  final String mapel;
-  final String kelas;
-  final Color color;
-  final Color bgColor;
-  final Color textColor;
-  final Color subColor;
+  final int sesi; // 1-6
+  final String mapelArab; // nama pelajaran dalam Arab
+  final String mapelLatin; // nama pelajaran dalam Latin
+  final String ustadz; // nama ustadz
 
   const JadwalItem({
     required this.hari,
-    required this.jam,
-    required this.mapel,
-    required this.kelas,
-    required this.color,
-    required this.bgColor,
-    required this.textColor,
-    required this.subColor,
+    required this.sesi,
+    required this.mapelArab,
+    required this.mapelLatin,
+    required this.ustadz,
   });
 }
 
@@ -29,111 +23,85 @@ class JadwalItem {
 //  DUMMY DATA  (ganti dengan data dari API)
 // ─────────────────────────────────────────────
 final List<JadwalItem> dummyJadwal = [
+  // SENIN
   JadwalItem(
       hari: 1,
-      jam: '07:00',
-      mapel: 'Nahwu',
-      kelas: 'Ula A',
-      color: const Color(0xFF1B7A3E),
-      bgColor: const Color(0xFFEDFAF3),
-      textColor: const Color(0xFF0D5C2E),
-      subColor: const Color(0xFF1B7A3E)),
-  JadwalItem(
-      hari: 1,
-      jam: '09:00',
-      mapel: 'Shorof',
-      kelas: 'Ula B',
-      color: const Color(0xFF7C3AED),
-      bgColor: const Color(0xFFF3F0FF),
-      textColor: const Color(0xFF4A1D96),
-      subColor: const Color(0xFF7C3AED)),
+      sesi: 2,
+      mapelArab: 'تعليم القرآن',
+      mapelLatin: 'Tahfidz Qur\'an',
+      ustadz: 'Ust. Huda'),
+
+  // SELASA
   JadwalItem(
       hari: 2,
-      jam: '07:00',
-      mapel: 'Fiqih',
-      kelas: 'Wustha A',
-      color: const Color(0xFF2563EB),
-      bgColor: const Color(0xFFEFF5FF),
-      textColor: const Color(0xFF1044A8),
-      subColor: const Color(0xFF2563EB)),
+      sesi: 1,
+      mapelArab: 'النحو الأساسي',
+      mapelLatin: 'Nahwu Asasi',
+      ustadz: 'Ust. Ahmad'),
+
   JadwalItem(
       hari: 2,
-      jam: '10:00',
-      mapel: 'Tafsir',
-      kelas: 'Ulya',
-      color: const Color(0xFFD97706),
-      bgColor: const Color(0xFFFFFBEB),
-      textColor: const Color(0xFF78350F),
-      subColor: const Color(0xFFD97706)),
+      sesi: 3,
+      mapelArab: 'تفسير جزء عم',
+      mapelLatin: 'Tafsir Juz Amma',
+      ustadz: 'Ust. Raden'),
+
+  // RABU
   JadwalItem(
       hari: 3,
-      jam: '08:00',
-      mapel: 'Hadits',
-      kelas: 'Wustha B',
-      color: const Color(0xFFD97706),
-      bgColor: const Color(0xFFFFFBEB),
-      textColor: const Color(0xFF78350F),
-      subColor: const Color(0xFFD97706)),
+      sesi: 2,
+      mapelArab: 'شرح الأربعين',
+      mapelLatin: 'Syarah Al-Arba\'in',
+      ustadz: 'Ust. Fatih'),
+
   JadwalItem(
       hari: 3,
-      jam: '13:00',
-      mapel: 'Shorof',
-      kelas: 'Ula A',
-      color: const Color(0xFF7C3AED),
-      bgColor: const Color(0xFFF3F0FF),
-      textColor: const Color(0xFF4A1D96),
-      subColor: const Color(0xFF7C3AED)),
+      sesi: 4,
+      mapelArab: 'الصرف',
+      mapelLatin: 'Shorof',
+      ustadz: 'Ust. Luqman'),
+
+  // KAMIS
   JadwalItem(
       hari: 4,
-      jam: '07:00',
-      mapel: 'Aqidah',
-      kelas: 'Ula A',
-      color: const Color(0xFF1B7A3E),
-      bgColor: const Color(0xFFEDFAF3),
-      textColor: const Color(0xFF0D5C2E),
-      subColor: const Color(0xFF1B7A3E)),
+      sesi: 1,
+      mapelArab: 'العقيدة الإسلامية',
+      mapelLatin: 'Aqidah Islamiyah',
+      ustadz: 'Ust. Salim'),
+
   JadwalItem(
       hari: 4,
-      jam: '13:00',
-      mapel: 'Nahwu',
-      kelas: 'Wustha A',
-      color: const Color(0xFF1B7A3E),
-      bgColor: const Color(0xFFEDFAF3),
-      textColor: const Color(0xFF0D5C2E),
-      subColor: const Color(0xFF1B7A3E)),
+      sesi: 4,
+      mapelArab: 'النحو المتقدم',
+      mapelLatin: 'Nahwu Mutaqaddim',
+      ustadz: 'Ust. Hadi'),
+
+  // JUMAT
   JadwalItem(
       hari: 5,
-      jam: '08:00',
-      mapel: 'Muhadatsah',
-      kelas: 'Ulya',
-      color: const Color(0xFF0F766E),
-      bgColor: const Color(0xFFEFFAF8),
-      textColor: const Color(0xFF064E3B),
-      subColor: const Color(0xFF0F766E)),
+      sesi: 2,
+      mapelArab: 'المحادثة',
+      mapelLatin: 'Muhadatsah',
+      ustadz: 'Ust. Yusuf'),
+
+  // SABTU
   JadwalItem(
       hari: 6,
-      jam: '07:00',
-      mapel: 'Imla',
-      kelas: 'Ula B',
-      color: const Color(0xFF0F766E),
-      bgColor: const Color(0xFFEFFAF8),
-      textColor: const Color(0xFF064E3B),
-      subColor: const Color(0xFF0F766E)),
+      sesi: 1,
+      mapelArab: 'الإملاء',
+      mapelLatin: 'Imla\'',
+      ustadz: 'Ust. Karim'),
+
   JadwalItem(
       hari: 6,
-      jam: '09:00',
-      mapel: 'Fiqih',
-      kelas: 'Ulya',
-      color: const Color(0xFF2563EB),
-      bgColor: const Color(0xFFEFF5FF),
-      textColor: const Color(0xFF1044A8),
-      subColor: const Color(0xFF2563EB)),
+      sesi: 3,
+      mapelArab: 'فقه المعاملات',
+      mapelLatin: 'Fiqh Mu\'amalah',
+      ustadz: 'Ust. Amin'),
 ];
 
 // ─────────────────────────────────────────────
-//  WIDGET  ← hanya isi tabel, TANPA section header
-//  Section header "Jadwal Mengajar" tetap
-//  dikelola di home_page.dart seperti section lain
+//  WIDGET
 // ─────────────────────────────────────────────
 class JadwalMengajarWidget extends StatefulWidget {
   final List<JadwalItem> jadwalList;
@@ -145,11 +113,7 @@ class JadwalMengajarWidget extends StatefulWidget {
 
 class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
   static const _green = Color(0xFF1B7A3E);
-  static const _gold = Color(0xFFF5C842);
-  static const _greenLight = Color(0xFFE8F5EE);
-  static const _greenDark = Color(0xFF0D5C2E);
 
-  static const _days = ['', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'];
   static const _daysFull = [
     '',
     'Senin',
@@ -158,251 +122,132 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     'Kamis',
     'Jumat',
     'Sabtu',
-    'Minggu'
+    'Minggu',
   ];
-  static const _bulan = [
+
+  static const _daysArab = [
     '',
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'Mei',
-    'Jun',
-    'Jul',
-    'Agu',
-    'Sep',
-    'Okt',
-    'Nov',
-    'Des'
+    'الاثنين',
+    'الثلاثاء',
+    'الأربعاء',
+    'الخميس',
+    'الجمعة',
+    'السبت',
+    'الأحد',
   ];
 
-  static const _times = [
-    ('07:00', 'Pagi'),
-    ('08:00', 'Pagi'),
-    ('09:00', 'Pagi'),
-    ('10:00', 'Pagi'),
-    ('11:00', 'Siang'),
-    ('13:00', 'Siang'),
-    ('14:00', 'Siang'),
-  ];
+  // Urutan hari: Sabtu, Ahad, Senin, Selasa, Rabu, Kamis (Jumat libur)
+  static const _dayOrder = [
+    6,
+    7,
+    1,
+    2,
+    3,
+    4
+  ]; // index ke _daysFull dan _daysArab
 
-  int _weekOffset = 0;
+  static const _sesiLabels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI'];
 
-  List<DateTime> _getWeekDates() {
-    final now = DateTime.now();
-    final monday =
-        now.subtract(Duration(days: now.weekday - 1 - _weekOffset * 7));
-    return List.generate(6, (i) => monday.add(Duration(days: i)));
+  bool _hariHasKelas(int hari) {
+    return widget.jadwalList.any((j) => j.hari == hari);
   }
 
-  bool _isToday(DateTime d) {
-    final now = DateTime.now();
-    return d.year == now.year && d.month == now.month && d.day == now.day;
-  }
-
-  String _getHijri(DateTime date) {
-    final jd = (date.millisecondsSinceEpoch / 86400000 + 2440587.5).floor();
-    final l = jd - 1948440 + 10632;
-    final n = ((l - 1) / 10631).floor();
-    final l2 = l - 10631 * n + 354;
-    final j = ((10985 - l2) / 5316).floor() * ((50 * l2) / 17719).floor() +
-        (l2 / 5670).floor() * ((43 * l2) / 15238).floor();
-    final l3 = l2 -
-        ((30 - j) / 15).floor() * ((17719 * j) / 50).floor() -
-        (j / 16).floor() * ((15238 * j) / 43).floor() +
-        29;
-    final month = ((24 * l3) / 709).floor();
-    final day = l3 - ((709 * month) / 24).floor();
-    const hm = [
-      '',
-      'Muh',
-      'Saf',
-      'R.Awl',
-      'R.Akh',
-      'J.Awl',
-      'J.Akh',
-      'Raj',
-      'Sya',
-      'Ram',
-      'Syaw',
-      'Zul-Q',
-      'Zul-H'
-    ];
-    return '$day ${hm[month]}';
-  }
-
-  JadwalItem? _getEntry(int hari, String jam) {
+  JadwalItem? _getEntry(int hari, int sesi) {
     try {
       return widget.jadwalList
-          .firstWhere((j) => j.hari == hari && j.jam == jam);
+          .firstWhere((j) => j.hari == hari && j.sesi == sesi);
     } catch (_) {
       return null;
     }
   }
 
-  int get _todaySesiCount {
-    final now = DateTime.now();
-    return widget.jadwalList.where((j) => j.hari == now.weekday).length;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final week = _getWeekDates();
-    final now = DateTime.now();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTodayBanner(now),
-        const SizedBox(height: 8),
-        _buildWeekNav(week),
-        const SizedBox(height: 8),
-        _buildTable(week),
-        const SizedBox(height: 10),
-        _buildFooter(),
-      ],
-    );
+    return _buildTable();
   }
-
-  // ─── Today Banner ─────────────────────────
-  Widget _buildTodayBanner(DateTime now) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        color: _greenLight,
-        borderRadius: BorderRadius.circular(10),
-        border: const Border(left: BorderSide(color: _green, width: 3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-              width: 7,
-              height: 7,
-              decoration:
-                  const BoxDecoration(color: _green, shape: BoxShape.circle)),
-          const SizedBox(width: 6),
-          Text(
-            'Hari ini: ${_daysFull[now.weekday]}, ${now.day} ${_bulan[now.month]} ${now.year}',
-            style: const TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w600, color: _greenDark),
-          ),
-          const Spacer(),
-          Text(
-            '$_todaySesiCount sesi',
-            style: const TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w700, color: _green),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── Week Navigation ──────────────────────
-  Widget _buildWeekNav(List<DateTime> week) {
-    final label =
-        '${week.first.day}/${week.first.month} – ${week.last.day}/${week.last.month} ${week.last.year}';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-          color: const Color(0xFFF5F5F3),
-          borderRadius: BorderRadius.circular(12)),
-      child: Row(
-        children: [
-          _navBtn(
-              Icons.chevron_left_rounded, () => setState(() => _weekOffset--)),
-          Expanded(
-            child: Text(label,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF888888))),
-          ),
-          _navBtn(
-              Icons.chevron_right_rounded, () => setState(() => _weekOffset++)),
-        ],
-      ),
-    );
-  }
-
-  Widget _navBtn(IconData icon, VoidCallback onTap) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFE5E5E5)),
-          ),
-          child: Icon(icon, size: 18, color: _green),
-        ),
-      );
 
   // ─── Table ────────────────────────────────
-  Widget _buildTable(List<DateTime> week) {
+  Widget _buildTable() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE8E8E8)),
+        color: const Color(0xFFFAFAFA),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFF5F5F5), width: 0.5),
       ),
       clipBehavior: Clip.hardEdge,
       child: Column(
         children: [
-          _buildTableHeader(week),
-          const Divider(height: 1, color: Color(0xFFEEEEEE)),
-          ..._times.map((t) => _buildTableRow(t.$1, t.$2, week)),
+          _buildTableHeader(),
+          ...List.generate(6, (sesiIdx) {
+            final sesi = sesiIdx + 1;
+            return Column(
+              children: [
+                if (sesiIdx > 0)
+                  const Divider(height: 1, color: Color(0xFFF5F5F5)),
+                _buildTableRow(sesi),
+              ],
+            );
+          }),
         ],
       ),
     );
   }
 
-  Widget _buildTableHeader(List<DateTime> week) {
+  Widget _buildTableHeader() {
     return IntrinsicHeight(
       child: Row(
         children: [
-          Container(width: 36, color: const Color(0xFFFAFAFA)),
+          Container(
+            width: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F5F5),
+              border: Border(
+                  right: BorderSide(color: Color(0xFFF5F5F5), width: 0.5)),
+            ),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: const Text(
+              '0',
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                  color: Color(0xFF999999)),
+            ),
+          ),
           ...List.generate(6, (i) {
-            final d = week[i];
-            final today = _isToday(d);
+            final hariIndex = _dayOrder[i];
+            final hariValue = hariIndex == 7 ? 0 : hariIndex; // Ahad = 0
+            final hasKelas = _hariHasKelas(hariValue);
             return Expanded(
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  color: today ? const Color(0xFFFFFEF5) : Colors.transparent,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
                   border: Border(
-                    left:
-                        const BorderSide(color: Color(0xFFEEEEEE), width: 0.5),
-                    bottom: BorderSide(
-                        color: today ? _gold : Colors.transparent, width: 2.5),
+                    left: BorderSide(color: Color(0xFFF5F5F5), width: 0.5),
                   ),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(_days[i + 1],
-                        style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: .4,
-                            color: today
-                                ? const Color(0xFFB89A00)
-                                : const Color(0xFFBBBBBB))),
-                    const SizedBox(height: 1),
-                    Text('${d.day}',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: today ? _green : const Color(0xFF1A1A2E))),
-                    const SizedBox(height: 1),
-                    Text(_getHijri(d),
-                        style: TextStyle(
-                            fontSize: 8,
-                            fontWeight: FontWeight.w500,
-                            color: today
-                                ? const Color(0xFFC8B84A)
-                                : const Color(0xFFDDDDDD))),
+                    Text(
+                      _daysArab[hariIndex],
+                      style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                          color: hasKelas ? _green : const Color(0xFF999999)),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _daysFull[hariIndex],
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                          color: hasKelas ? _green : const Color(0xFF666666)),
+                    ),
                   ],
                 ),
               ),
@@ -413,51 +258,49 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     );
   }
 
-  Widget _buildTableRow(String jam, String sesiLabel, List<DateTime> week) {
-    return Container(
-      decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: Color(0xFFF5F5F5)))),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              width: 36,
-              color: const Color(0xFFFAFAFA),
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(jam,
-                      style: const TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: _green)),
-                  Text(sesiLabel,
-                      style: const TextStyle(
-                          fontSize: 8, color: Color(0xFFCCCCCC))),
-                ],
-              ),
+  Widget _buildTableRow(int sesi) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            width: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFFF5F5F5),
+              border: Border(
+                  right: BorderSide(color: Color(0xFFF5F5F5), width: 0.5)),
             ),
-            ...List.generate(6, (i) {
-              final today = _isToday(week[i]);
-              final entry = _getEntry(i + 1, jam);
-              return Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 50),
-                  decoration: BoxDecoration(
-                    color: today ? const Color(0xFFFEFFF7) : Colors.transparent,
-                    border: const Border(
-                        left: BorderSide(color: Color(0xFFF5F5F5), width: 0.5)),
-                  ),
-                  padding: const EdgeInsets.all(3),
-                  alignment: Alignment.center,
-                  child: entry != null ? _buildPill(entry) : _buildEmptyDot(),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              _sesiLabels[sesi],
+              style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                  color: Color(0xFF999999)),
+            ),
+          ),
+          ...List.generate(6, (i) {
+            final hariIndex = _dayOrder[i];
+            final hariValue = hariIndex == 7 ? 0 : hariIndex; // Ahad = 0
+            final entry = _getEntry(hariValue, sesi);
+            return Expanded(
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 56),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                      left: BorderSide(color: Color(0xFFF5F5F5), width: 0.5)),
                 ),
-              );
-            }),
-          ],
-        ),
+                padding: const EdgeInsets.all(4),
+                alignment: Alignment.center,
+                child:
+                    entry != null ? _buildPill(entry) : const SizedBox.shrink(),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -465,111 +308,57 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
   Widget _buildPill(JadwalItem item) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(6, 5, 5, 4),
+      padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
       decoration: BoxDecoration(
-        color: item.bgColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border(left: BorderSide(color: item.color, width: 3)),
+        color: const Color(0xFFF0F9F5),
+        borderRadius: BorderRadius.circular(6),
+        border: const Border(left: BorderSide(color: _green, width: 3)),
       ),
       child: Stack(
         children: [
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(item.mapel,
-                  style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: item.textColor,
-                      height: 1.2)),
-              const SizedBox(height: 2),
-              Text(item.kelas,
-                  style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w500,
-                      color: item.subColor.withOpacity(.7))),
+              // Nama pelajaran Arab (besar, tebal, hijau)
+              Text(
+                item.mapelArab,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w700,
+                    color: _green,
+                    height: 1.1),
+              ),
+              const SizedBox(height: 1),
+              // Nama ustadz (lebih kecil, hijau)
+              Text(
+                item.ustadz,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                    fontSize: 6.5,
+                    fontWeight: FontWeight.w500,
+                    color: _green,
+                    height: 1.05),
+              ),
             ],
           ),
+          // Dot indicator di sudut kiri
           Positioned(
-            top: 0,
-            right: 0,
+            top: 2,
+            left: 2,
             child: Container(
-                width: 5,
-                height: 5,
+                width: 3,
+                height: 3,
                 decoration:
-                    BoxDecoration(color: item.color, shape: BoxShape.circle)),
+                    const BoxDecoration(color: _green, shape: BoxShape.circle)),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildEmptyDot() => const SizedBox.shrink();
-
-  // ─── Footer ───────────────────────────────
-  Widget _buildFooter() {
-    const legends = [
-      (Color(0xFF1B7A3E), 'Nahwu/Aqidah'),
-      (Color(0xFF2563EB), 'Fiqih'),
-      (Color(0xFF7C3AED), 'Shorof'),
-      (Color(0xFFD97706), 'Tafsir/Hadits'),
-      (Color(0xFF0F766E), 'Imla/Muhadatsah'),
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Wrap(
-          spacing: 10,
-          runSpacing: 6,
-          children: legends
-              .map((l) => Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                          width: 12,
-                          height: 3,
-                          decoration: BoxDecoration(
-                              color: l.$1,
-                              borderRadius: BorderRadius.circular(2))),
-                      const SizedBox(width: 4),
-                      Text(l.$2,
-                          style: const TextStyle(
-                              fontSize: 10,
-                              color: Color(0xFF888888),
-                              fontWeight: FontWeight.w500)),
-                    ],
-                  ))
-              .toList(),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF0FAF4),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: const Color(0xFFD4EDDC)),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.info_outline_rounded, size: 14, color: _green),
-              const SizedBox(width: 6),
-              const Text('Total mengajar minggu ini',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: _green,
-                      fontWeight: FontWeight.w600)),
-              const Spacer(),
-              Text('${widget.jadwalList.length} sesi',
-                  style: const TextStyle(
-                      fontSize: 15,
-                      color: _green,
-                      fontWeight: FontWeight.w700)),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
