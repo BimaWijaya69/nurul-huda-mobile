@@ -21,9 +21,6 @@ class _HomePageState extends State<HomePage>
   late Animation<double> _headerFade;
   late Animation<Offset> _headerSlide;
 
-  // Countdown timer
-  Duration _countdown = const Duration(hours: 4, minutes: 31, seconds: 26);
-  Timer? _timer;
   DateTime _now = DateTime.now();
 
   @override
@@ -42,32 +39,13 @@ class _HomePageState extends State<HomePage>
       begin: const Offset(0, -0.15),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _headerAnim, curve: Curves.easeOut));
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) {
-        setState(() {
-          _now = DateTime.now();
-          if (_countdown.inSeconds > 0) {
-            _countdown -= const Duration(seconds: 1);
-          }
-        });
-      }
-    });
   }
 
   @override
   void dispose() {
     _headerAnim.dispose();
-    _timer?.cancel();
     super.dispose();
   }
-
-  String _padTwo(int n) => n.toString().padLeft(2, '0');
-
-  String get _countdownStr =>
-      '-${_padTwo(_countdown.inHours)}:${_padTwo(_countdown.inMinutes % 60)}:${_padTwo(_countdown.inSeconds % 60)}';
-
-  String get _timeStr => '${_padTwo(_now.hour)}:${_padTwo(_now.minute)}';
 
   String get _dayAndTimeStr {
     return DateFormat('EEEE HH:mm', 'id_ID').format(_now);
@@ -75,10 +53,6 @@ class _HomePageState extends State<HomePage>
 
   String get _fullDateStr {
     return DateFormat('d MMMM y', 'id_ID').format(_now);
-  }
-
-  String get _dateStr {
-    return DateFormat('EEEE, d MMMM y', 'id_ID').format(_now);
   }
 
   @override
@@ -95,33 +69,52 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           // ── Main Content ──
-          CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              // ── Header Banner ──
-              SliverToBoxAdapter(child: _buildHeader()),
+          RefreshIndicator(
+            onRefresh: () async {
+              await Future.delayed(const Duration(milliseconds: 800));
+              setState(() {
+                _now = DateTime.now();
+              });
+            },
+            // FIX 1: Bungkus CustomScrollView dengan MediaQuery.removePadding
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true, // Menghilangkan default padding dari status bar
+              child: CustomScrollView(
+                // FIX 2: Pastikan padding internal nol
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // ── Header Banner ──
+                  // FIX 3: Lempar 'context' ke dalam _buildHeader agar bisa baca tinggi status bar
+                  SliverToBoxAdapter(child: _buildHeader(context)),
 
-              // ── Search Bar ──
-              SliverToBoxAdapter(child: _buildSearchBar()),
+                  // ── Search Bar ──
+                  SliverToBoxAdapter(child: _buildSearchBar()),
 
-              // ── Jadwal Mengajar ──
-              SliverToBoxAdapter(child: _buildJadwalSection()),
+                  // ── Jadwal Mengajar ──
+                  SliverToBoxAdapter(child: _buildJadwalSection()),
 
-              // ── Quick Access Cards ──
-              SliverToBoxAdapter(child: _buildQuickCards()),
+                  // ── Quick Access Cards ──
+                  SliverToBoxAdapter(child: _buildQuickCards()),
 
-              // ── Mading Pesantren ──
-              SliverToBoxAdapter(child: _buildMadingSection()),
+                  // ── Mading Pesantren ──
+                  SliverToBoxAdapter(child: _buildMadingSection()),
 
-              const SliverToBoxAdapter(child: SizedBox(height: 24)),
-            ],
+                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                ],
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  // FIX 4: Tambahkan BuildContext context sebagai parameter
+  Widget _buildHeader(BuildContext context) {
+    // FIX 5: Ambil tinggi status bar HP secara manual
+    double statusBarHeight = MediaQuery.of(context).padding.top;
+
     return FadeTransition(
       opacity: _headerFade,
       child: SlideTransition(
@@ -152,137 +145,136 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
               ),
-              SafeArea(
-                bottom: false,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Top row: greeting + notification
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Assalamu\'alaikum 👋',
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.85),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                ),
+              // FIX 6: Ganti SafeArea menjadi Padding biasa, lalu tambahkan statusBarHeight di padding atasnya
+              Padding(
+                // 12 adalah padding bawaan kamu, ditambah tinggi status bar
+                padding: EdgeInsets.fromLTRB(20, 12 + statusBarHeight, 20, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Top row: greeting + notification
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Assalamu\'alaikum 👋',
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.85),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
                               ),
-                              const SizedBox(height: 2),
-                              const Text(
-                                'Nurul Huda',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Stack(
-                            children: [
-                              Container(
-                                width: 42,
-                                height: 42,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(Icons.notifications_rounded,
-                                    color: Colors.white, size: 22),
-                              ),
-                              Positioned(
-                                right: 8,
-                                top: 8,
-                                child: Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: _gold,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Location
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.location_on_rounded,
-                              color: _gold, size: 14),
-                          const SizedBox(width: 4),
-                          Text(
-                            'MANGUNSARI, TEKUNG, LUMAJANG',
-                            style: TextStyle(
-                              color: Colors.white.withOpacity(0.85),
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1,
                             ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      // Day + Current Time (Large display)
-                      Text(
-                        _dayAndTimeStr,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 38,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                          fontFeatures: [FontFeature.tabularFigures()],
+                            const SizedBox(height: 2),
+                            const Text(
+                              'Nurul Huda',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-
-                      const SizedBox(height: 6),
-
-                      // Full Date (Tanggal Bulan Tahun)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 18, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.25),
-                          borderRadius: BorderRadius.circular(20),
+                        Stack(
+                          children: [
+                            Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.notifications_rounded,
+                                  color: Colors.white, size: 22),
+                            ),
+                            Positioned(
+                              right: 8,
+                              top: 8,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: _gold,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        child: Text(
-                          _fullDateStr,
-                          style: const TextStyle(
-                            color: _gold,
-                            fontSize: 16,
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Location
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.location_on_rounded,
+                            color: _gold, size: 14),
+                        const SizedBox(width: 4),
+                        Text(
+                          'MANGUNSARI, TEKUNG, LUMAJANG',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.85),
+                            fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            letterSpacing: 0.5,
+                            letterSpacing: 1,
                           ),
                         ),
-                      ),
+                      ],
+                    ),
 
-                      const SizedBox(height: 16),
+                    const SizedBox(height: 8),
 
-                      // Bottom row: Ubah Lokasi + Reset + Arah Kiblat
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _headerChip(Icons.schedule_rounded, 'Jadwal Absensi'),
-                          _headerChip(Icons.assignment_turned_in_rounded,
-                              'Riwayat Absensi'),
-                        ],
+                    // Day + Current Time (Large display)
+                    Text(
+                      _dayAndTimeStr,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 38,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.5,
+                        fontFeatures: [FontFeature.tabularFigures()],
                       ),
-                    ],
-                  ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    // Full Date (Tanggal Bulan Tahun)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 18, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        _fullDateStr,
+                        style: const TextStyle(
+                          color: _gold,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Bottom row: Ubah Lokasi + Reset + Arah Kiblat
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _headerChip(Icons.schedule_rounded, 'Jadwal Absensi'),
+                        _headerChip(Icons.assignment_turned_in_rounded,
+                            'Riwayat Absensi'),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],

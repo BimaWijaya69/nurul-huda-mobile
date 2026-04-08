@@ -100,9 +100,6 @@ final List<JadwalItem> dummyJadwal = [
       ustadz: 'Ust. Amin'),
 ];
 
-// ─────────────────────────────────────────────
-//  WIDGET
-// ─────────────────────────────────────────────
 class JadwalMengajarWidget extends StatefulWidget {
   final List<JadwalItem> jadwalList;
   const JadwalMengajarWidget({super.key, required this.jadwalList});
@@ -146,10 +143,32 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     4
   ]; // index ke _daysFull dan _daysArab
 
-  static const _sesiLabels = ['', 'I', 'II', 'III', 'IV', 'V', 'VI'];
+  static const _sesiLabels = ['Sifir', 'I', 'II', 'III', 'IV', 'V', 'VI'];
+
+  late int _todayDayOfWeek; // 0=Ahad, 1=Senin, ..., 6=Sabtu
+  late int _todayColumn; // index di _dayOrder yang sesuai dengan hari ini
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    // Convert Flutter weekday (1=Monday, 7=Sunday) to our format (0=Sunday, 1=Monday, ..., 6=Saturday)
+    _todayDayOfWeek = now.weekday == 7 ? 0 : now.weekday;
+    // Find column index in _dayOrder
+    _todayColumn =
+        _dayOrder.indexOf(_todayDayOfWeek == 0 ? 7 : _todayDayOfWeek);
+  }
 
   bool _hariHasKelas(int hari) {
     return widget.jadwalList.any((j) => j.hari == hari);
+  }
+
+  bool _hasJadwalToday() {
+    return widget.jadwalList.any((j) => j.hari == _todayDayOfWeek);
+  }
+
+  bool _isToday(int columnIndex) {
+    return columnIndex == _todayColumn;
   }
 
   JadwalItem? _getEntry(int hari, int sesi) {
@@ -178,8 +197,8 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
       child: Column(
         children: [
           _buildTableHeader(),
-          ...List.generate(6, (sesiIdx) {
-            final sesi = sesiIdx + 1;
+          ...List.generate(7, (sesiIdx) {
+            final sesi = sesiIdx; // 0-6
             return Column(
               children: [
                 if (sesiIdx > 0)
@@ -198,7 +217,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
       child: Row(
         children: [
           Container(
-            width: 40,
+            width: 50,
             decoration: const BoxDecoration(
               color: Color(0xFFF5F5F5),
               border: Border(
@@ -207,18 +226,21 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: const Text(
-              '0',
+              'فَصْل',
+              textAlign: TextAlign.center,
               style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.5,
-                  color: Color(0xFF999999)),
+                  color: Color(0xFF1B7A3E)),
             ),
           ),
           ...List.generate(6, (i) {
             final hariIndex = _dayOrder[i];
             final hariValue = hariIndex == 7 ? 0 : hariIndex; // Ahad = 0
             final hasKelas = _hariHasKelas(hariValue);
+            final isToday = _isToday(i);
+            final isTodayWithJadwal = isToday && _hasJadwalToday();
             return Expanded(
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -234,19 +256,23 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
                     Text(
                       _daysArab[hariIndex],
                       style: TextStyle(
-                          fontSize: 9,
+                          fontSize: 12,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 0.5,
-                          color: hasKelas ? _green : const Color(0xFF999999)),
+                          color: isTodayWithJadwal || hasKelas
+                              ? _green
+                              : const Color(0xFF999999)),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _daysFull[hariIndex],
                       style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.5,
-                          color: hasKelas ? _green : const Color(0xFF666666)),
+                          color: isTodayWithJadwal || hasKelas
+                              ? _green
+                              : const Color(0xFF666666)),
                     ),
                   ],
                 ),
@@ -258,13 +284,13 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     );
   }
 
-  Widget _buildTableRow(int sesi) {
+  Widget _buildTableRow(int sesiIdx) {
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
-            width: 40,
+            width: 50,
             decoration: const BoxDecoration(
               color: Color(0xFFF5F5F5),
               border: Border(
@@ -273,9 +299,9 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
-              _sesiLabels[sesi],
+              _sesiLabels[sesiIdx],
               style: const TextStyle(
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.5,
                   color: Color(0xFF999999)),
@@ -284,7 +310,10 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
           ...List.generate(6, (i) {
             final hariIndex = _dayOrder[i];
             final hariValue = hariIndex == 7 ? 0 : hariIndex; // Ahad = 0
-            final entry = _getEntry(hariValue, sesi);
+            final entry = _getEntry(hariValue, sesiIdx);
+            final isToday = _isToday(i);
+            final isTodayWithJadwal = isToday && _hasJadwalToday();
+
             return Expanded(
               child: Container(
                 constraints: const BoxConstraints(minHeight: 56),
@@ -295,8 +324,9 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
                 ),
                 padding: const EdgeInsets.all(4),
                 alignment: Alignment.center,
-                child:
-                    entry != null ? _buildPill(entry) : const SizedBox.shrink(),
+                child: entry != null
+                    ? _buildJadwalContent(entry)
+                    : _buildEmptyCell(),
               ),
             );
           }),
@@ -305,60 +335,43 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     );
   }
 
-  Widget _buildPill(JadwalItem item) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F9F5),
-        borderRadius: BorderRadius.circular(6),
-        border: const Border(left: BorderSide(color: _green, width: 3)),
-      ),
-      child: Stack(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Nama pelajaran Arab (besar, tebal, hijau)
-              Text(
-                item.mapelArab,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.right,
-                style: const TextStyle(
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.w700,
-                    color: _green,
-                    height: 1.1),
-              ),
-              const SizedBox(height: 1),
-              // Nama ustadz (lebih kecil, hijau)
-              Text(
-                item.ustadz,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.right,
-                style: const TextStyle(
-                    fontSize: 6.5,
-                    fontWeight: FontWeight.w500,
-                    color: _green,
-                    height: 1.05),
-              ),
-            ],
+  Widget _buildJadwalContent(JadwalItem entry) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          entry.mapelArab,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: _green,
+            height: 1.3,
           ),
-          // Dot indicator di sudut kiri
-          Positioned(
-            top: 2,
-            left: 2,
-            child: Container(
-                width: 3,
-                height: 3,
-                decoration:
-                    const BoxDecoration(color: _green, shape: BoxShape.circle)),
+        ),
+        Text(
+          entry.ustadz,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12,
+            color: _green.withOpacity(0.75),
+            height: 1.3,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 2),
+        Container(
+          width: 40,
+          height: 2,
+          decoration: const BoxDecoration(
+            color: Color(0xFFFFC107),
+            borderRadius: BorderRadius.all(Radius.circular(1)),
+          ),
+        ),
+      ],
     );
+  }
+
+  Widget _buildEmptyCell() {
+    return const SizedBox.shrink();
   }
 }

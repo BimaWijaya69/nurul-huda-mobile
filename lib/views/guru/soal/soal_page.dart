@@ -58,7 +58,6 @@ class SoalPage extends GetView<SoalController> {
     );
   }
 
-  // ─── APP BAR ────────────────────────────────────────
   Widget _buildAppBar(SoalController controller) {
     return Container(
       decoration: const BoxDecoration(
