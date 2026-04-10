@@ -8,7 +8,6 @@ class SoalPage extends GetView<SoalController> {
   const SoalPage({super.key});
 
   static const _green = Color(0xFF1B7A3E);
-  static const _gold = Color(0xFFF5C842);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +75,7 @@ class SoalPage extends GetView<SoalController> {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.arrow_back_rounded,
@@ -101,10 +100,10 @@ class SoalPage extends GetView<SoalController> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
-                        color: Colors.white.withOpacity(0.3), width: 0.5),
+                        color: Colors.white.withValues(alpha: 0.3), width: 0.5),
                   ),
                   child: const Text(
                     'Simpan',
@@ -133,7 +132,7 @@ class SoalPage extends GetView<SoalController> {
         border: Border.all(color: const Color(0xFFE5E7EB), width: 0.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -218,7 +217,7 @@ class SoalPage extends GetView<SoalController> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _green.withOpacity(0.4),
+              color: _green.withValues(alpha: 0.4),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -244,30 +243,8 @@ class SoalPage extends GetView<SoalController> {
   }
 
   // ─── ACTIONS ────────────────────────────────────────
-  void _onSimpan(SoalController controller) {
-    final pesan = controller.validasiPesan;
-    if (pesan != null) {
-      Get.snackbar(
-        'Belum lengkap',
-        pesan,
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange.shade50,
-        colorText: Colors.orange.shade800,
-        icon: const Icon(Icons.warning_amber_rounded,
-            color: Colors.orange, size: 20),
-      );
-      return;
-    }
-    // TODO: simpan ke database/API
-    Get.snackbar(
-      'Berhasil',
-      'Soal ujian berhasil disimpan',
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: const Color(0xFFE8F5EE),
-      colorText: const Color(0xFF1B7A3E),
-      icon: const Icon(Icons.check_circle_rounded,
-          color: Color(0xFF1B7A3E), size: 20),
-    );
+  Future<void> _onSimpan(SoalController controller) async {
+    await controller.simpan();
   }
 
   Future<void> _onPreviewPrint(SoalController controller) async {

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:nurul_huda_mobile/views/home/widget/jadwal_mengajar_widget.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,6 +23,14 @@ class _HomePageState extends State<HomePage>
   late Animation<Offset> _headerSlide;
 
   DateTime _now = DateTime.now();
+  // Coursel
+  // int _currentAyatIndex = 1;
+  // final List<String> ayatImages = [
+  //   'https://picsum.photos/id/1011/400/400',
+  //   'https://picsum.photos/id/1012/400/400',
+  //   'https://picsum.photos/id/1013/400/400',
+  //   'https://picsum.photos/id/1014/400/400',
+  // ];
 
   @override
   void initState() {
@@ -61,7 +70,6 @@ class _HomePageState extends State<HomePage>
       backgroundColor: const Color(0xFFF5F6FA),
       body: Stack(
         children: [
-          // ── Background Image ──
           Positioned.fill(
             child: Image.asset(
               'images/background.jpg',
@@ -76,30 +84,17 @@ class _HomePageState extends State<HomePage>
                 _now = DateTime.now();
               });
             },
-            // FIX 1: Bungkus CustomScrollView dengan MediaQuery.removePadding
             child: MediaQuery.removePadding(
               context: context,
-              removeTop: true, // Menghilangkan default padding dari status bar
+              removeTop: true,
               child: CustomScrollView(
-                // FIX 2: Pastikan padding internal nol
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  // ── Header Banner ──
-                  // FIX 3: Lempar 'context' ke dalam _buildHeader agar bisa baca tinggi status bar
                   SliverToBoxAdapter(child: _buildHeader(context)),
-
-                  // ── Search Bar ──
                   SliverToBoxAdapter(child: _buildSearchBar()),
-
-                  // ── Jadwal Mengajar ──
                   SliverToBoxAdapter(child: _buildJadwalSection()),
-
-                  // ── Quick Access Cards ──
                   SliverToBoxAdapter(child: _buildQuickCards()),
-
-                  // ── Mading Pesantren ──
-                  SliverToBoxAdapter(child: _buildMadingSection()),
-
+                  SliverToBoxAdapter(child: _buildNotifSection()),
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
                 ],
               ),
@@ -110,9 +105,7 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  // FIX 4: Tambahkan BuildContext context sebagai parameter
   Widget _buildHeader(BuildContext context) {
-    // FIX 5: Ambil tinggi status bar HP secara manual
     double statusBarHeight = MediaQuery.of(context).padding.top;
 
     return FadeTransition(
@@ -145,14 +138,12 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
               ),
-              // FIX 6: Ganti SafeArea menjadi Padding biasa, lalu tambahkan statusBarHeight di padding atasnya
+
               Padding(
-                // 12 adalah padding bawaan kamu, ditambah tinggi status bar
                 padding: EdgeInsets.fromLTRB(20, 12 + statusBarHeight, 20, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Top row: greeting + notification
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -206,10 +197,7 @@ class _HomePageState extends State<HomePage>
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 20),
-
-                    // Location
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -227,10 +215,7 @@ class _HomePageState extends State<HomePage>
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 8),
-
-                    // Day + Current Time (Large display)
                     Text(
                       _dayAndTimeStr,
                       style: const TextStyle(
@@ -241,10 +226,7 @@ class _HomePageState extends State<HomePage>
                         fontFeatures: [FontFeature.tabularFigures()],
                       ),
                     ),
-
                     const SizedBox(height: 6),
-
-                    // Full Date (Tanggal Bulan Tahun)
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 18, vertical: 6),
@@ -262,10 +244,7 @@ class _HomePageState extends State<HomePage>
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
-                    // Bottom row: Ubah Lokasi + Reset + Arah Kiblat
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -347,8 +326,8 @@ class _HomePageState extends State<HomePage>
               ),
             ),
             Container(
-              margin: const EdgeInsets.all(6),
-              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: const Color(0xFF1B7A3E),
                 borderRadius: BorderRadius.circular(10),
@@ -403,6 +382,113 @@ class _HomePageState extends State<HomePage>
     );
   }
 
+  // Widget _buildAyatSection() {
+  //   return Padding(
+  //     padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 Container(
+  //                   width: 4,
+  //                   height: 20,
+  //                   decoration: BoxDecoration(
+  //                     color: const Color(0xFFF5C842),
+  //                     borderRadius: BorderRadius.circular(2),
+  //                   ),
+  //                 ),
+  //                 const SizedBox(width: 8),
+  //                 const Text(
+  //                   'Ayat Pilihan Hari Ini',
+  //                   style: TextStyle(
+  //                       fontSize: 18,
+  //                       fontWeight: FontWeight.w800,
+  //                       color: Color(0xFF1A1A2E)),
+  //                 ),
+  //               ],
+  //             ),
+  //             TextButton(
+  //               onPressed: () {},
+  //               child: const Text('Lihat Semua',
+  //                   style: TextStyle(
+  //                       color: Color(0xFF1B7A3E),
+  //                       fontSize: 15,
+  //                       fontWeight: FontWeight.w600)),
+  //             ),
+  //           ],
+  //         ),
+  //         const SizedBox(height: 16),
+  //         Container(
+  //           padding:
+  //               const EdgeInsets.symmetric(vertical: 20.0), // Jarak atas bawah
+  //           decoration: BoxDecoration(
+  //             image: DecorationImage(
+  //                 image: AssetImage('images/background_coursel.jpg'),
+  //                 fit: BoxFit.cover),
+  //           ),
+  //           child: CarouselSlider(
+  //             options: CarouselOptions(
+  //               height: 240.0,
+  //               viewportFraction: 0.5,
+  //               enlargeCenterPage: true,
+  //               enableInfiniteScroll: true,
+  //               initialPage: 1,
+  //               onPageChanged: (index, reason) {
+  //                 setState(() {
+  //                   _currentAyatIndex = index;
+  //                 });
+  //               },
+  //             ),
+  //             items: ayatImages
+  //                 .map((item) => Container(
+  //                       margin: const EdgeInsets.symmetric(horizontal: 5.0),
+  //                       decoration: BoxDecoration(
+  //                         borderRadius: BorderRadius.circular(16.0),
+  //                         image: DecorationImage(
+  //                           image: NetworkImage(item),
+  //                           fit: BoxFit.cover,
+  //                         ),
+  //                         boxShadow: [
+  //                           BoxShadow(
+  //                             color: Colors.black.withOpacity(0.08),
+  //                             blurRadius: 8.0,
+  //                             offset: const Offset(0, 4),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ))
+  //                 .toList(),
+  //           ),
+  //         ),
+  //         const SizedBox(height: 16),
+  //         Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: ayatImages.asMap().entries.map((entry) {
+  //             bool isActive = _currentAyatIndex == entry.key;
+  //             return AnimatedContainer(
+  //               duration: const Duration(milliseconds: 300),
+  //               width: isActive
+  //                   ? 24.0
+  //                   : 8.0, // Panjang saat aktif, pendek saat tidak
+  //               height: 6.0, // Ketebalan indikator
+  //               margin: const EdgeInsets.symmetric(horizontal: 4.0),
+  //               decoration: BoxDecoration(
+  //                 borderRadius: BorderRadius.circular(10.0),
+  //                 color:
+  //                     isActive ? const Color(0xFF1B7A3E) : Colors.grey.shade300,
+  //               ),
+  //             );
+  //           }).toList(),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   Widget _buildQuickCards() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
@@ -411,7 +497,7 @@ class _HomePageState extends State<HomePage>
           Expanded(
             child: _buildQuickCard(
               icon: Icons.trending_up_rounded,
-              label: 'Trending\nArtikel',
+              label: 'Rekap\nAbsensi',
               color: const Color(0xFF1B7A3E),
               bgColor: const Color(0xFFE8F5EE),
             ),
@@ -497,9 +583,8 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  // ─── MADING SECTION ───────────────────────────────────────────────────────
-  Widget _buildMadingSection() {
-    final List<Map<String, String>> madingItems = [
+  Widget _buildNotifSection() {
+    final List<Map<String, String>> notifItems = [
       {
         'title': 'Pengumuman Libur Akhir Semester',
         'date': '5 Mar 2026',
@@ -537,7 +622,7 @@ class _HomePageState extends State<HomePage>
                   ),
                   const SizedBox(width: 8),
                   const Text(
-                    'Mading Pesantren',
+                    'Notifikasi Terbaru',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -548,7 +633,7 @@ class _HomePageState extends State<HomePage>
               ),
               TextButton(
                 onPressed: () {},
-                child: const Text('Semua',
+                child: const Text('Lihat Semua',
                     style: TextStyle(
                         color: Color(0xFF1B7A3E),
                         fontSize: 15,
@@ -557,13 +642,13 @@ class _HomePageState extends State<HomePage>
             ],
           ),
           const SizedBox(height: 8),
-          ...madingItems.map((item) => _buildMadingCard(item)),
+          ...notifItems.map((item) => _buildNotifCard(item)),
         ],
       ),
     );
   }
 
-  Widget _buildMadingCard(Map<String, String> item) {
+  Widget _buildNotifCard(Map<String, String> item) {
     final catColors = {
       'Pengumuman': const Color(0xFFFF6B6B),
       'Akademik': const Color(0xFF1B7A3E),

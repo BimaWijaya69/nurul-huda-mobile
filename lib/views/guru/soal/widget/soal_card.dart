@@ -16,7 +16,6 @@ class SoalCard extends StatelessWidget {
   });
 
   static const _green = Color(0xFF1B7A3E);
-  static const _darkGreen = Color(0xFF0D4A24);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +35,7 @@ class SoalCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -201,7 +200,8 @@ class SoalCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFE8F5EE),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF1B7A3E).withOpacity(0.2)),
+        border:
+            Border.all(color: const Color(0xFF1B7A3E).withValues(alpha: 0.2)),
       ),
       child: Text(
         soal.soalPegon,

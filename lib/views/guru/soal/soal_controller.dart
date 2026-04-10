@@ -19,11 +19,6 @@ class SoalController extends GetxController {
   final RxList<SoalModel> soalList = <SoalModel>[].obs;
   final RxSet<int> expandedIds = <int>{}.obs;
   final RxSet<int> loadingTransIds = <int>{}.obs;
-  final RxBool isSaving = false.obs;
-
-  // ── Computed ──────────────────────────────────────
-  int get totalBobot => soalList.fold(0, (sum, s) => sum + s.bobot);
-  int get jumlahSoal => soalList.length;
 
   @override
   void onInit() {
@@ -40,7 +35,6 @@ class SoalController extends GetxController {
       soalList.add(
         SoalModel(
           id: i,
-          tipe: TipeSoal.essay,
         ),
       );
     }
@@ -66,10 +60,6 @@ class SoalController extends GetxController {
     _updateSoal(id, (s) => s.copyWith(pedomanEssay: val));
   }
 
-  void updateBobot(int id, int val) {
-    _updateSoal(id, (s) => s.copyWith(bobot: val < 1 ? 1 : val));
-  }
-
   void _updateSoal(int id, SoalModel Function(SoalModel) updater) {
     final idx = soalList.indexWhere((s) => s.id == id);
     if (idx == -1) return;
@@ -77,7 +67,6 @@ class SoalController extends GetxController {
     soalList.refresh();
   }
 
-  // ── Transliterasi ─────────────────────────────────
   Future<void> transliterasi(int id) async {
     final idx = soalList.indexWhere((s) => s.id == id);
     if (idx == -1) return;
@@ -106,7 +95,6 @@ class SoalController extends GetxController {
 
   bool isLoadingTrans(int id) => loadingTransIds.contains(id);
 
-  // ── Simpan ────────────────────────────────────────
   Future<void> simpan() async {
     final pesan = validasiPesan;
     if (pesan != null) {
@@ -117,7 +105,6 @@ class SoalController extends GetxController {
       return;
     }
 
-    isSaving.value = true;
     try {
       final sukses = await _repository.simpanSoal(
         judul: judul.value,
@@ -131,9 +118,7 @@ class SoalController extends GetxController {
       if (sukses) {
         Get.snackbar(
           'Berhasil',
-          useMock
-              ? '[MOCK] Soal tersimpan (simulasi)'
-              : 'Soal berhasil disimpan',
+          'Soal berhasil disimpan',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFE8F5EE),
           colorText: const Color(0xFF1B7A3E),
@@ -142,13 +127,8 @@ class SoalController extends GetxController {
     } catch (e) {
       Get.snackbar('Error', 'Gagal menyimpan: $e',
           snackPosition: SnackPosition.BOTTOM);
-    } finally {
-      isSaving.value = false;
     }
   }
-
-  // ── Validasi ──────────────────────────────────────
-  bool get isValid => validasiPesan == null;
 
   String? get validasiPesan {
     if (judul.value.trim().isEmpty) return 'Judul ujian belum diisi';

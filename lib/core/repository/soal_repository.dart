@@ -76,27 +76,8 @@ class _MockSoalRepository implements SoalRepository {
 // Diisi nanti ketika API backend sudah siap
 // ─────────────────────────────────────────────────────────
 class _RealSoalRepository implements SoalRepository {
-  // TODO: inject base URL dari env/config
-  static const String _baseUrl = 'https://api.nurulhuda.example.com';
-
   @override
   Future<String> transliterasi(String teksLatin) async {
-    // TODO: uncomment dan sesuaikan ketika API sudah siap
-    //
-    // final response = await http.post(
-    //   Uri.parse('$_baseUrl/transliterasi'),
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': 'Bearer ${AuthService.token}',
-    //   },
-    //   body: jsonEncode({'text': teksLatin}),
-    // );
-    // if (response.statusCode == 200) {
-    //   final data = jsonDecode(response.body);
-    //   return data['result'] as String;
-    // }
-    // throw Exception('Transliterasi gagal: ${response.statusCode}');
-
     throw UnimplementedError('API belum siap');
   }
 
@@ -109,25 +90,6 @@ class _RealSoalRepository implements SoalRepository {
     required int durasi,
     required List<SoalModel> soalList,
   }) async {
-    // TODO: uncomment dan sesuaikan ketika API sudah siap
-    //
-    // final response = await http.post(
-    //   Uri.parse('$_baseUrl/soal'),
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization': 'Bearer ${AuthService.token}',
-    //   },
-    //   body: jsonEncode({
-    //     'judul': judul,
-    //     'mapel': mapel,
-    //     'kelas': kelas,
-    //     'tanggal': tanggal,
-    //     'durasi': durasi,
-    //     'soal': soalList.map((s) => s.toJson()).toList(),
-    //   }),
-    // );
-    // return response.statusCode == 200 || response.statusCode == 201;
-
     throw UnimplementedError('API belum siap');
   }
 }

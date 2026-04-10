@@ -3,6 +3,7 @@ import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
 import 'package:nurul_huda_mobile/core/routes/app_pages.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
@@ -25,10 +26,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final baseTheme = ThemeData.light();
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: initialRoute,
       getPages: AppPages.Pages,
+      theme: baseTheme.copyWith(
+        textTheme: GoogleFonts.plusJakartaSansTextTheme(baseTheme.textTheme),
+        primaryTextTheme:
+            GoogleFonts.plusJakartaSansTextTheme(baseTheme.primaryTextTheme),
+      ),
     );
   }
 }
