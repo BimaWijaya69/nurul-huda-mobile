@@ -167,8 +167,8 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     return widget.jadwalList.any((j) => j.hari == _todayDayOfWeek);
   }
 
-  bool _isToday(int columnIndex) {
-    return columnIndex == _todayColumn;
+  bool _isToday(int columnIndex, List<int> dayIndices) {
+    return columnIndex == _todayColumn && dayIndices.contains(columnIndex);
   }
 
   JadwalItem? _getEntry(int hari, int sesi) {
@@ -182,11 +182,19 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildTable();
+    return Column(
+      children: [
+        // ─── Tabel 1: Sabtu - Senin ─────────────────
+        _buildTable([0, 1, 2]),
+        const SizedBox(height: 12),
+        // ─── Tabel 2: Selasa - Kamis ────────────────
+        _buildTable([3, 4, 5]),
+      ],
+    );
   }
 
   // ─── Table ────────────────────────────────
-  Widget _buildTable() {
+  Widget _buildTable(List<int> dayIndices) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFFAFAFA),
@@ -196,14 +204,14 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
       clipBehavior: Clip.hardEdge,
       child: Column(
         children: [
-          _buildTableHeader(),
+          _buildTableHeader(dayIndices),
           ...List.generate(7, (sesiIdx) {
             final sesi = sesiIdx; // 0-6
             return Column(
               children: [
                 if (sesiIdx > 0)
                   const Divider(height: 1, color: Color(0xFFF5F5F5)),
-                _buildTableRow(sesi),
+                _buildTableRow(sesi, dayIndices),
               ],
             );
           }),
@@ -212,7 +220,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     );
   }
 
-  Widget _buildTableHeader() {
+  Widget _buildTableHeader(List<int> dayIndices) {
     return IntrinsicHeight(
       child: Row(
         children: [
@@ -235,11 +243,11 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
                   color: Color(0xFF1B7A3E)),
             ),
           ),
-          ...List.generate(6, (i) {
+          ...dayIndices.map((i) {
             final hariIndex = _dayOrder[i];
             final hariValue = hariIndex == 7 ? 0 : hariIndex; // Ahad = 0
             final hasKelas = _hariHasKelas(hariValue);
-            final isToday = _isToday(i);
+            final isToday = _isToday(i, dayIndices);
             final isTodayWithJadwal = isToday && _hasJadwalToday();
             return Expanded(
               child: Container(
@@ -284,7 +292,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
     );
   }
 
-  Widget _buildTableRow(int sesiIdx) {
+  Widget _buildTableRow(int sesiIdx, List<int> dayIndices) {
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -307,12 +315,10 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
                   color: Color(0xFF999999)),
             ),
           ),
-          ...List.generate(6, (i) {
+          ...dayIndices.map((i) {
             final hariIndex = _dayOrder[i];
             final hariValue = hariIndex == 7 ? 0 : hariIndex; // Ahad = 0
             final entry = _getEntry(hariValue, sesiIdx);
-            final isToday = _isToday(i);
-            final isTodayWithJadwal = isToday && _hasJadwalToday();
 
             return Expanded(
               child: Container(
@@ -354,7 +360,7 @@ class _JadwalMengajarWidgetState extends State<JadwalMengajarWidget> {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 12,
-            color: _green.withOpacity(0.75),
+            color: _green.withValues(alpha: 0.75),
             height: 1.3,
           ),
         ),
