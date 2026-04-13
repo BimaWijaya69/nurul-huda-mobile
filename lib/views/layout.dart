@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nurul_huda_mobile/views/guru/soal/soal_page.dart';
-import 'package:nurul_huda_mobile/views/guru/soal/soal_controller.dart';
 import 'package:nurul_huda_mobile/views/layout_controller.dart';
 import 'package:nurul_huda_mobile/views/home/home_page.dart';
 import 'package:nurul_huda_mobile/views/absensi/absensi_page.dart';
 import 'package:nurul_huda_mobile/views/nilai/nilai_page.dart';
 import 'package:nurul_huda_mobile/views/profil/profil_page.dart';
+import 'package:nurul_huda_mobile/views/soal/soal_controller.dart';
+import 'package:nurul_huda_mobile/views/soal/soal_page.dart';
 
 class Layout extends StatelessWidget {
   const Layout({super.key});
@@ -17,10 +17,9 @@ class Layout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final LayoutController controller = Get.put(LayoutController());
-    Get.put(SoalController());
 
     final List<Widget> pages = [
-      const SoalPage(),
+      SoalPage(),
       const AbsensiPage(),
       const HomePage(),
       const NilaiPage(),

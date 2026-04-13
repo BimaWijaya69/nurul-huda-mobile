@@ -1,0 +1,37 @@
+import 'package:get/get.dart';
+import 'package:nurul_huda_mobile/data/models/mapel_kelas.dart';
+import 'package:nurul_huda_mobile/data/models/periode.dart';
+import 'package:nurul_huda_mobile/data/services/soal_service.dart';
+
+class SoalController extends GetxController {
+  final SoalService _service = SoalService();
+
+  var isLoading = true.obs;
+  var listMapel = <MapelKelas>[].obs;
+  var periodeAktif = Periode().obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchMapelKelas();
+  }
+
+  Future<void> fetchMapelKelas() async {
+    try {
+      isLoading(true);
+      var response = await _service.getMapelKelas();
+      periodeAktif.value = Periode.fromJson(response);
+      List<dynamic> rawData = (response['data'] as List<dynamic>?) ?? [];
+
+      listMapel.assignAll(rawData
+          .map((item) => MapelKelas.fromJson(item as Map<String, dynamic>))
+          .toList());
+    } catch (e) {
+      Get.snackbar('Kesalahan', 'Gagal mengambil data: $e');
+      print(
+          'Error detail: $e'); // Tambahkan ini biar kalau ada error, gampang dilacak di console
+    } finally {
+      isLoading(false);
+    }
+  }
+}
