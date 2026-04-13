@@ -76,7 +76,6 @@ class _HomePageState extends State<HomePage>
               fit: BoxFit.cover,
             ),
           ),
-          // ── Main Content ──
           RefreshIndicator(
             onRefresh: () async {
               await Future.delayed(const Duration(milliseconds: 800));

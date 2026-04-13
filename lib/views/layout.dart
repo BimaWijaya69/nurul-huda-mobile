@@ -5,7 +5,7 @@ import 'package:nurul_huda_mobile/views/guru/soal/soal_controller.dart';
 import 'package:nurul_huda_mobile/views/layout_controller.dart';
 import 'package:nurul_huda_mobile/views/home/home_page.dart';
 import 'package:nurul_huda_mobile/views/absensi/absensi_page.dart';
-import 'package:nurul_huda_mobile/views/nilai/nilai_page.dart';
+import 'package:nurul_huda_mobile/views/nilai/dashboard/daftar_nilai_page.dart';
 import 'package:nurul_huda_mobile/views/profil/profil_page.dart';
 
 class Layout extends StatelessWidget {
@@ -23,7 +23,7 @@ class Layout extends StatelessWidget {
       const SoalPage(),
       const AbsensiPage(),
       const HomePage(),
-      const NilaiPage(),
+      const DaftarNilaiPage(),
       const ProfilPage(),
     ];
 
