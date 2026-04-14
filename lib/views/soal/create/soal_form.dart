@@ -18,37 +18,35 @@ class _SoalFormState extends State<SoalForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            _buildCustomAppBar(),
-            _buildProgressIndicator(),
-            Expanded(
-              child: PageView.builder(
-                controller: controller.pageController,
-                physics: const BouncingScrollPhysics(),
-                onPageChanged: (index) {
-                  FocusScope.of(context).unfocus();
-                  controller.onPageChanged(index);
-                },
-                itemCount: controller.totalSoal,
-                itemBuilder: (context, index) {
-                  return _buildInputCard(index);
-                },
-              ),
+      body: Column(
+        children: [
+          _buildCustomAppBar(context),
+          _buildProgressIndicator(),
+          Expanded(
+            child: PageView.builder(
+              controller: controller.pageController,
+              physics: const BouncingScrollPhysics(),
+              onPageChanged: (index) {
+                FocusScope.of(context).unfocus();
+                controller.onPageChanged(index);
+              },
+              itemCount: controller.totalSoal,
+              itemBuilder: (context, index) {
+                return _buildInputCard(index);
+              },
             ),
-            _buildBottomNavigation(context),
-          ],
-        ),
+          ),
+          _buildBottomNavigation(context),
+        ],
       ),
     );
   }
 
   // --- APP BAR ---
-  Widget _buildCustomAppBar() {
+  Widget _buildCustomAppBar(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+      padding: EdgeInsets.fromLTRB(
+          16, MediaQuery.of(context).padding.top + 12, 16, 20),
       decoration: const BoxDecoration(
         color: _green,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
@@ -81,7 +79,11 @@ class _SoalFormState extends State<SoalForm> {
                 const SizedBox(height: 2),
                 Text(controller.namaMapelKelas ?? 'Memuat data...',
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.8), fontSize: 13)),
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.3,
+                    )),
               ],
             ),
           ),
@@ -146,11 +148,11 @@ class _SoalFormState extends State<SoalForm> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
+                    color: _green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8)),
                 child: Text('Pertanyaan No. ${index + 1}',
                     style: const TextStyle(
-                        color: Color(0xFF3B82F6),
+                        color: Color(0xFF059669),
                         fontWeight: FontWeight.w600,
                         fontSize: 13)),
               ),

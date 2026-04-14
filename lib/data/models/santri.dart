@@ -29,3 +29,13 @@ class Santri {
     };
   }
 }
+
+class SantriAbsenUi {
+  final Santri santri;
+  int status; 
+
+  SantriAbsenUi({
+    required this.santri,
+    this.status = 1, 
+  });
+}

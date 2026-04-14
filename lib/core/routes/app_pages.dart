@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:nurul_huda_mobile/views/absensi/create/absensi_form.dart';
 import 'package:nurul_huda_mobile/views/soal/create/soal_form.dart';
 import 'package:nurul_huda_mobile/views/soal/preview/soal_preview.dart';
 import 'package:nurul_huda_mobile/views/started/get_started.dart';
@@ -24,6 +25,11 @@ class AppPages {
     GetPage(
       name: '/preview-soal',
       page: () => SoalPreview(),
+      transition: Transition.leftToRight,
+    ),
+    GetPage(
+      name: '/create-absensi',
+      page: () => const AbsensiForm(),
       transition: Transition.leftToRight,
     ),
   ];
