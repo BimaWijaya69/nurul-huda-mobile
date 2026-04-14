@@ -1,11 +1,12 @@
 import 'package:get/get.dart';
+import 'package:nurul_huda_mobile/views/nilai/create/nilai_form.dart';
 
 class JadwalUjianUIModel {
   final int id;
   final String tanggalUjian;
   final String namaMapel;
   final String namaKelas;
-  final bool isDinilai; // Tambahan untuk memicu desain badge dari Mas Ifan
+  final bool isDinilai;
 
   JadwalUjianUIModel({
     required this.id,
@@ -22,14 +23,14 @@ class DaftarNilaiController extends GetxController {
       id: 1,
       tanggalUjian: '12 Apr 2026',
       namaMapel: 'عقيدة العوام', // Aqidatul Awam
-      namaKelas: 'Sifir',
+      namaKelas: 'صفر',
       isDinilai: false,
     ),
     JadwalUjianUIModel(
       id: 2,
       tanggalUjian: '14 Apr 2026',
       namaMapel: 'تيسير الخلاق', // Taisirul Kholaq
-      namaKelas: 'I',
+      namaKelas: '',
       isDinilai: true,
     ),
     JadwalUjianUIModel(
@@ -49,8 +50,6 @@ class DaftarNilaiController extends GetxController {
   ].obs;
 
   void bukaInputNilai(int idJadwal) {
-    print("Membuka form nilai untuk ID Jadwal: $idJadwal");
-    // Nanti lempar ID jadwal ini ke halaman Input Nilai
-    // Get.toNamed('/input-nilai', arguments: idJadwal);
+    Get.to(() => const InputNilaiPage(), arguments: idJadwal);
   }
 }
