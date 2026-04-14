@@ -5,7 +5,6 @@ import 'package:nurul_huda_mobile/views/home/home_page.dart';
 import 'package:nurul_huda_mobile/views/absensi/absensi_page.dart';
 import 'package:nurul_huda_mobile/views/nilai/nilai_page.dart';
 import 'package:nurul_huda_mobile/views/profil/profil_page.dart';
-import 'package:nurul_huda_mobile/views/soal/soal_controller.dart';
 import 'package:nurul_huda_mobile/views/soal/soal_page.dart';
 
 class Layout extends StatelessWidget {
@@ -20,7 +19,7 @@ class Layout extends StatelessWidget {
 
     final List<Widget> pages = [
       SoalPage(),
-      const AbsensiPage(),
+      AbsensiPage(),
       const HomePage(),
       const NilaiPage(),
       const ProfilPage(),

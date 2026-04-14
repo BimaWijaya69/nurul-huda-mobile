@@ -57,7 +57,6 @@ class SoalPreview extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 1. Tombol Back
           GestureDetector(
             onTap: () => Get.back(),
             child: Container(
@@ -72,7 +71,6 @@ class SoalPreview extends StatelessWidget {
           ),
           const SizedBox(width: 16),
 
-          // 2. Judul (Pakai Expanded biar ngedorong tombol simpan ke ujung kanan)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,7 +91,7 @@ class SoalPreview extends StatelessWidget {
                   ),
                   maxLines: 1,
                   overflow: TextOverflow
-                      .ellipsis, // Biar teks kepanjangan nggak pecah
+                      .ellipsis,
                 ),
               ],
             ),
@@ -101,14 +99,12 @@ class SoalPreview extends StatelessWidget {
 
           const SizedBox(width: 8),
 
-          // 3. RAHASIA UX ENAK: TOMBOL SIMPAN DI POJOK KANAN ATAS
           Obx(() => GestureDetector(
-                // Kalau lagi loading nyimpen, tombolnya dimatikan (null) biar ga ke-klik dobel
                 onTap: controller.isSaving.value
                     ? null
                     : () {
-                        FocusScope.of(context).unfocus(); // Tutup keyboard
-                        controller.updateSoal(); // Panggil fungsi simpan
+                        FocusScope.of(context).unfocus(); 
+                        controller.updateSoal(); 
                       },
                 child: Container(
                   padding:
@@ -147,7 +143,7 @@ class SoalPreview extends StatelessWidget {
     );
   }
 
-  // --- BAGIAN INDIKATOR PROGRESS ---
+  // --- INDIKATOR PROGRESS ---
   Widget _buildProgressIndicator() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
@@ -181,7 +177,7 @@ class SoalPreview extends StatelessWidget {
     );
   }
 
-  // --- BAGIAN KARTU INPUT LATIN & PEGON ---
+  // --- KARTU INPUT LATIN & PEGON ---
   Widget _buildInputCard(int index) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -201,7 +197,6 @@ class SoalPreview extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Badge Nomor Soal (Estetik)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
@@ -215,7 +210,6 @@ class SoalPreview extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // KOTAK LATIN
             _buildTextField(
               label: 'TEKS LATIN',
               controller: controller.latinControllers[index],
@@ -224,7 +218,6 @@ class SoalPreview extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // TOMBOL GENERATE DI TENGAH
             Center(
               child: SizedBox(
                 width: double.infinity,
@@ -234,9 +227,9 @@ class SoalPreview extends StatelessWidget {
                           : () => controller.hitGeneratePegon(index),
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            const Color(0xFFE2E8F0), // Abu-abu terang elegan
+                            const Color(0xFFE2E8F0), 
                         foregroundColor:
-                            const Color(0xFF475569), // Text abu-abu gelap
+                            const Color(0xFF475569), 
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
@@ -260,7 +253,6 @@ class SoalPreview extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            // KOTAK PEGON (RTL - Rata Kanan)
             _buildTextField(
               label: 'TEKS ARAB PEGON',
               controller: controller.pegonControllers[index],
@@ -309,7 +301,7 @@ class SoalPreview extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.normal),
             filled: true,
-            fillColor: _bgLight, // Background field senada sama scaffold
+            fillColor: _bgLight,
             contentPadding: const EdgeInsets.all(16),
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
