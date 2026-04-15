@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:nurul_huda_mobile/views/profil/profil_controller.dart';
 
 class ProfilPage extends GetView<ProfilController> {
@@ -26,10 +25,18 @@ class ProfilPage extends GetView<ProfilController> {
               stretch: true,
               backgroundColor: _greenDark,
               elevation: 0,
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.qr_code_scanner_rounded,
+                      color: Colors.white, size: 26),
+                  tooltip: 'Tampilkan Barcode ID',
+                  onPressed: () => _showBarcodeBottomSheet(context),
+                ),
+                const SizedBox(width: 8),
+              ],
               flexibleSpace: LayoutBuilder(
                 builder: (BuildContext context, BoxConstraints constraints) {
                   var top = constraints.biggest.height;
-
                   var isCollapsed = top <=
                       kToolbarHeight + MediaQuery.of(context).padding.top + 20;
 
@@ -67,7 +74,7 @@ class ProfilPage extends GetView<ProfilController> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const SizedBox(height: 60), // Jarak aman dari atas
+                          const SizedBox(height: 60),
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
@@ -89,7 +96,6 @@ class ProfilPage extends GetView<ProfilController> {
                             ),
                           ),
                           const SizedBox(height: 12),
-
                           Text(
                             controller.teacher.value.name,
                             style: const TextStyle(
@@ -98,7 +104,6 @@ class ProfilPage extends GetView<ProfilController> {
                                 color: Colors.white),
                           ),
                           const SizedBox(height: 8),
-
                           Container(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 6),
@@ -116,7 +121,6 @@ class ProfilPage extends GetView<ProfilController> {
                                   fontSize: 12),
                             ),
                           ),
-
                           const SizedBox(height: 50),
                         ],
                       ),
@@ -137,9 +141,8 @@ class ProfilPage extends GetView<ProfilController> {
                   decoration: const BoxDecoration(
                     color: Color(0xFFF8F9FA),
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
@@ -156,15 +159,15 @@ class ProfilPage extends GetView<ProfilController> {
                         const SizedBox(height: 30),
                         Container(
                           decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
                                   color: Colors.grey.withOpacity(0.05),
                                   blurRadius: 10,
-                                  offset: const Offset(0, 5),
-                                )
-                              ]),
+                                  offset: const Offset(0, 5))
+                            ],
+                          ),
                           child: Column(
                             children: [
                               _buildInfoTile(Icons.badge_outlined,
@@ -173,10 +176,6 @@ class ProfilPage extends GetView<ProfilController> {
                                   height: 1,
                                   thickness: 1,
                                   color: Color(0xFFF0F0F0)),
-                              _buildInfoTile(
-                                  Icons.phone_outlined,
-                                  'Nomor Telepon',
-                                  controller.teacher.value.phone),
                               const Divider(
                                   height: 1,
                                   thickness: 1,
@@ -195,8 +194,7 @@ class ProfilPage extends GetView<ProfilController> {
                               side: const BorderSide(
                                   color: Colors.redAccent, width: 1.5),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
+                                  borderRadius: BorderRadius.circular(16)),
                             ),
                             icon: const Icon(Icons.logout_rounded,
                                 color: Colors.redAccent),
@@ -223,7 +221,90 @@ class ProfilPage extends GetView<ProfilController> {
     );
   }
 
-  // Widget Helper
+  void _showBarcodeBottomSheet(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 50,
+              height: 5,
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const Text(
+              'Kartu Identitas Digital',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Tunjukkan barcode ini ke scanner asrama',
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200, width: 2),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.qr_code_2_rounded,
+                      size: 150, color: Colors.grey.shade800),
+                  const SizedBox(height: 16),
+                  Text(
+                    controller.teacher.value.id,
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 2,
+                        color: Colors.black87),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => controller.downloadBarcode(),
+                icon: const Icon(Icons.download_rounded, color: Colors.white),
+                label: const Text('Simpan ke Galeri',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _greenMid,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+      isScrollControlled: true,
+      enterBottomSheetDuration: const Duration(milliseconds: 300),
+    );
+  }
+
   Widget _buildInfoTile(IconData icon, String title, String subtitle) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),

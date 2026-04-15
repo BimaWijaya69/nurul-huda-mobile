@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-// sementara
 class TeacherModel {
   final String id;
   final String name;
   final String role;
-  final String phone;
   final String email;
 
   TeacherModel({
     required this.id,
     required this.name,
     required this.role,
-    required this.phone,
     required this.email,
   });
 }
@@ -23,7 +20,6 @@ class ProfilController extends GetxController {
     id: 'GR-070326001',
     name: 'Ustadz Ahmad Fulan, Lc.',
     role: 'Ustadz',
-    phone: '+62 812-3456-7890',
     email: 'ahmad.fulan@asrama.com',
   ).obs;
 
@@ -37,6 +33,27 @@ class ProfilController extends GetxController {
     if (parts.isNotEmpty) initials += parts[0][0];
     if (parts.length > 1) initials += parts[1][0];
     return initials.toUpperCase();
+  }
+
+  void downloadBarcode() async {
+    Get.back(); // Tutup bottom sheet dulu
+    Get.dialog(
+        const Center(
+            child: CircularProgressIndicator(color: Color(0xFF1B7A3E))),
+        barrierDismissible: false);
+
+    await Future.delayed(const Duration(seconds: 1));
+    Get.back();
+
+    Get.snackbar(
+      'Berhasil',
+      'Barcode ID berhasil disimpan ke Galeri HP',
+      backgroundColor: const Color(0xFF1B7A3E),
+      colorText: Colors.white,
+      snackPosition: SnackPosition.TOP,
+      icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
+      margin: const EdgeInsets.all(16),
+    );
   }
 
   void logout() {
