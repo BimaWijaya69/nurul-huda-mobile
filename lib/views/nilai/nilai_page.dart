@@ -46,11 +46,7 @@ class DaftarNilaiPage extends GetView<DaftarNilaiController> {
   Widget _buildCustomAppBar(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomCenter,
-            colors: [_greenDark, _greenMid, _greenLight],
-          ),
+          color: _green,
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
           boxShadow: [
             BoxShadow(

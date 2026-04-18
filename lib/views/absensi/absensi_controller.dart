@@ -9,6 +9,10 @@ class AbsensiController extends GetxController {
   final AbsensiService _absensiService = AbsensiService();
   var isLoading = true.obs;
 
+  var isError = false.obs;
+  var errorType = 'server'.obs;
+  var errorMessage = ''.obs;
+
   var hariIni = ''.obs;
   var tanggalLengkap = ''.obs;
   var isSubmitting = false.obs;
@@ -38,7 +42,9 @@ class AbsensiController extends GetxController {
   Future<void> fetchJadwalHariIni() async {
     try {
       isLoading(true);
-      int guruId = 5;
+      isError(false);
+      errorMessage('');
+      int guruId = 15;
 
       final responseData = await _absensiService.getJadwalHariIni(guruId);
 
@@ -46,8 +52,26 @@ class AbsensiController extends GetxController {
       tanggalLengkap.value = responseData.tanggal;
       listJadwal.assignAll(responseData.jadwal);
     } catch (e) {
-      Get.snackbar('Error', e.toString(),
-          backgroundColor: Colors.red, colorText: Colors.white);
+      isError(true);
+      String errorMsg = e.toString().toLowerCase();
+
+      if (errorMsg.contains('timeout') || errorMsg.contains('waktu habis')) {
+        errorType.value = 'timeout';
+      } else if (errorMsg.contains('internet') ||
+          errorMsg.contains('network') ||
+          errorMsg.contains('socket')) {
+        errorType.value = 'network';
+      } else if (errorMsg.contains('401') ||
+          errorMsg.contains('unauthorized')) {
+        errorType.value = 'unauthorized';
+      } else {
+        errorType.value = 'server';
+        errorMessage(
+            e.toString()); // Simpan pesan asli jika error tidak dikenali
+      }
+
+      // Get.snackbar('Error', e.toString(),
+      //     backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading(false);
     }

@@ -5,6 +5,8 @@ import 'package:nurul_huda_mobile/data/models/jadwal_kbm.dart';
 import 'package:nurul_huda_mobile/helpers/arabic_helper.dart';
 import 'package:nurul_huda_mobile/views/absensi/absensi_controller.dart';
 import 'package:nurul_huda_mobile/views/widgets/custom_text_field.dart';
+import 'package:nurul_huda_mobile/widget/error.dart';
+import 'package:nurul_huda_mobile/widget/skeleton_card.dart';
 
 class AbsensiPage extends StatelessWidget {
   AbsensiPage({Key? key}) : super(key: key);
@@ -16,79 +18,112 @@ class AbsensiPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
-      body: Column(
-        children: [
-          _buildCustomAppBar(context),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-            color: Colors.white,
-            child: Obx(() => Text(
-                  'Jadwal Hari Ini: ${controller.hariIni.value}, ${controller.tanggalLengkap.value}',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: Colors.black87),
-                )),
-          ),
-          Expanded(
-            child: Obx(() {
-              if (controller.isLoading.value) {
-                return const Center(
-                    child: CircularProgressIndicator(color: _green));
-              }
+        backgroundColor: _bgLight,
+        body: Obx(() {
+          return Column(
+            children: [
+              _buildCustomAppBar(context),
+              Expanded(
+                child: _buildContent(),
+              ),
+            ],
+          );
+        }));
+  }
 
-              if (controller.listJadwal.isEmpty) {
-                return _buildEmptyState();
-              }
+  Widget _buildContent() {
+    if (controller.isLoading.value) {
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 4,
+        itemBuilder: (context, index) {
+          return const SkeletonCard();
+        },
+      );
+    }
+    if (controller.isError.value) {
+      String type = controller.errorType.value;
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                physics: const BouncingScrollPhysics(),
-                itemCount: controller.listJadwal.length,
-                itemBuilder: (context, index) {
-                  return _buildJadwalCard(
-                      context, controller.listJadwal[index]);
-                },
-              );
-            }),
-          ),
-        ],
-      ),
+      switch (type) {
+        case 'network':
+          return ErrorStateWidget.network(
+            onRetry: () => controller.fetchJadwalHariIni(),
+          );
+        case 'timeout':
+          return ErrorStateWidget.timeout(
+            onRetry: () => controller.fetchJadwalHariIni(),
+          );
+        case 'unauthorized':
+          return ErrorStateWidget.unauthorized(
+            onRetry: () {
+              // Get.offAllNamed(Routes.LOGIN);
+            },
+          );
+        case 'server':
+        default:
+          return ErrorStateWidget.server(
+            onRetry: () => controller.fetchJadwalHariIni(),
+          );
+      }
+    }
+
+    if (controller.listJadwal.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      physics: const BouncingScrollPhysics(),
+      itemCount: controller.listJadwal.length,
+      itemBuilder: (context, index) {
+        return _buildJadwalCard(context, controller.listJadwal[index]);
+      },
     );
   }
 
-  // --- BAGIAN APP BAR ---
   Widget _buildCustomAppBar(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(
-          16, MediaQuery.of(context).padding.top + 12, 16, 20),
       decoration: const BoxDecoration(
-          color: _green,
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(24))),
-      child: Row(
-        children: [
-          const SizedBox(width: 16),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Absensi Mengajar',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700)),
-                SizedBox(height: 2),
-                Text('Pilih kelas yang akan diabsen',
-                    style: TextStyle(color: Colors.white, fontSize: 13)),
-              ],
-            ),
+        color: _green,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Absensi Mengajar',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700)),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Hari ini ${controller.hariIni.value}, ${controller.tanggalLengkap.value}',
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 40),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  // --- WIDGET KALAU JADWAL KOSONG ---
   Widget _buildEmptyState() {
     return Center(
       child: Column(

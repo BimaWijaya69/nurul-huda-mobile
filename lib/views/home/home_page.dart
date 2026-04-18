@@ -1,71 +1,21 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:get/get.dart';
+import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
 import 'package:nurul_huda_mobile/views/home/widget/jadwal_mengajar_widget.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'home_controller.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends GetView<HomeController> {
   const HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
   static const _green = Color(0xFF1B7A3E);
   static const _darkGreen = Color(0xFF0D4A24);
   static const _gold = Color(0xFFF5C842);
   static const _lightGreen = Color(0xFF25A355);
 
-  late AnimationController _headerAnim;
-  late Animation<double> _headerFade;
-  late Animation<Offset> _headerSlide;
-
-  DateTime _now = DateTime.now();
-  // Coursel
-  // int _currentAyatIndex = 1;
-  // final List<String> ayatImages = [
-  //   'https://picsum.photos/id/1011/400/400',
-  //   'https://picsum.photos/id/1012/400/400',
-  //   'https://picsum.photos/id/1013/400/400',
-  //   'https://picsum.photos/id/1014/400/400',
-  // ];
-
-  @override
-  void initState() {
-    super.initState();
-
-    _headerAnim = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..forward();
-
-    _headerFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _headerAnim, curve: Curves.easeIn),
-    );
-    _headerSlide = Tween<Offset>(
-      begin: const Offset(0, -0.15),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _headerAnim, curve: Curves.easeOut));
-  }
-
-  @override
-  void dispose() {
-    _headerAnim.dispose();
-    super.dispose();
-  }
-
-  String get _dayAndTimeStr {
-    return DateFormat('EEEE HH:mm', 'id_ID').format(_now);
-  }
-
-  String get _fullDateStr {
-    return DateFormat('d MMMM y', 'id_ID').format(_now);
-  }
-
   @override
   Widget build(BuildContext context) {
+    Get.put(HomeController());
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       body: Stack(
@@ -77,12 +27,7 @@ class _HomePageState extends State<HomePage>
             ),
           ),
           RefreshIndicator(
-            onRefresh: () async {
-              await Future.delayed(const Duration(milliseconds: 800));
-              setState(() {
-                _now = DateTime.now();
-              });
-            },
+            onRefresh: controller.refreshHome,
             child: MediaQuery.removePadding(
               context: context,
               removeTop: true,
@@ -108,14 +53,14 @@ class _HomePageState extends State<HomePage>
     double statusBarHeight = MediaQuery.of(context).padding.top;
 
     return FadeTransition(
-      opacity: _headerFade,
+      opacity: controller.headerFade,
       child: SlideTransition(
-        position: _headerSlide,
+        position: controller.headerSlide,
         child: Container(
           margin: const EdgeInsets.only(bottom: 0),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF0D4A24), Color(0xFF1B7A3E), Color(0xFF25A355)],
+              colors: [_darkGreen, _green, _lightGreen],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -123,7 +68,6 @@ class _HomePageState extends State<HomePage>
           ),
           child: Stack(
             children: [
-              // Decorative background image
               Positioned(
                 right: 0,
                 bottom: 0,
@@ -137,7 +81,6 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
               ),
-
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 12 + statusBarHeight, 20, 24),
                 child: Column(
@@ -168,31 +111,36 @@ class _HomePageState extends State<HomePage>
                             ),
                           ],
                         ),
-                        Stack(
-                          children: [
-                            Container(
-                              width: 42,
-                              height: 42,
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(12),
+                        GestureDetector(
+                          onTap: () {
+                            Get.toNamed(Routes.NOTIFIKASI);
+                          },
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.notifications_rounded,
+                                    color: Colors.white, size: 22),
                               ),
-                              child: const Icon(Icons.notifications_rounded,
-                                  color: Colors.white, size: 22),
-                            ),
-                            Positioned(
-                              right: 8,
-                              top: 8,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: _gold,
-                                  shape: BoxShape.circle,
+                              Positioned(
+                                right: 8,
+                                top: 8,
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: _gold,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -215,16 +163,16 @@ class _HomePageState extends State<HomePage>
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      _dayAndTimeStr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 38,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
-                        fontFeatures: [FontFeature.tabularFigures()],
-                      ),
-                    ),
+                    Obx(() => Text(
+                          controller.dayAndTimeStr,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 38,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        )),
                     const SizedBox(height: 6),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -233,15 +181,15 @@ class _HomePageState extends State<HomePage>
                         color: Colors.black.withOpacity(0.25),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text(
-                        _fullDateStr,
-                        style: const TextStyle(
-                          color: _gold,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+                      child: Obx(() => Text(
+                            controller.fullDateStr,
+                            style: const TextStyle(
+                              color: _gold,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          )),
                     ),
                     const SizedBox(height: 16),
                     Row(
@@ -307,8 +255,7 @@ class _HomePageState extends State<HomePage>
           children: [
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 14),
-              child: Icon(Icons.search_rounded,
-                  color: Color(0xFF1B7A3E), size: 22),
+              child: Icon(Icons.search_rounded, color: _green, size: 22),
             ),
             Expanded(
               child: TextField(
@@ -328,7 +275,7 @@ class _HomePageState extends State<HomePage>
               margin: const EdgeInsets.all(8),
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color(0xFF1B7A3E),
+                color: _green,
                 borderRadius: BorderRadius.circular(10),
               ),
               child:
@@ -346,7 +293,6 @@ class _HomePageState extends State<HomePage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header — sama persis dengan section lain
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -356,7 +302,7 @@ class _HomePageState extends State<HomePage>
                     width: 4,
                     height: 20,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5C842),
+                      color: _gold,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -373,120 +319,11 @@ class _HomePageState extends State<HomePage>
             ],
           ),
           const SizedBox(height: 12),
-
-          // Widget tabel
           JadwalMengajarWidget(jadwalList: dummyJadwal),
         ],
       ),
     );
   }
-
-  // Widget _buildAyatSection() {
-  //   return Padding(
-  //     padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Row(
-  //               children: [
-  //                 Container(
-  //                   width: 4,
-  //                   height: 20,
-  //                   decoration: BoxDecoration(
-  //                     color: const Color(0xFFF5C842),
-  //                     borderRadius: BorderRadius.circular(2),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(width: 8),
-  //                 const Text(
-  //                   'Ayat Pilihan Hari Ini',
-  //                   style: TextStyle(
-  //                       fontSize: 18,
-  //                       fontWeight: FontWeight.w800,
-  //                       color: Color(0xFF1A1A2E)),
-  //                 ),
-  //               ],
-  //             ),
-  //             TextButton(
-  //               onPressed: () {},
-  //               child: const Text('Lihat Semua',
-  //                   style: TextStyle(
-  //                       color: Color(0xFF1B7A3E),
-  //                       fontSize: 15,
-  //                       fontWeight: FontWeight.w600)),
-  //             ),
-  //           ],
-  //         ),
-  //         const SizedBox(height: 16),
-  //         Container(
-  //           padding:
-  //               const EdgeInsets.symmetric(vertical: 20.0), // Jarak atas bawah
-  //           decoration: BoxDecoration(
-  //             image: DecorationImage(
-  //                 image: AssetImage('images/background_coursel.jpg'),
-  //                 fit: BoxFit.cover),
-  //           ),
-  //           child: CarouselSlider(
-  //             options: CarouselOptions(
-  //               height: 240.0,
-  //               viewportFraction: 0.5,
-  //               enlargeCenterPage: true,
-  //               enableInfiniteScroll: true,
-  //               initialPage: 1,
-  //               onPageChanged: (index, reason) {
-  //                 setState(() {
-  //                   _currentAyatIndex = index;
-  //                 });
-  //               },
-  //             ),
-  //             items: ayatImages
-  //                 .map((item) => Container(
-  //                       margin: const EdgeInsets.symmetric(horizontal: 5.0),
-  //                       decoration: BoxDecoration(
-  //                         borderRadius: BorderRadius.circular(16.0),
-  //                         image: DecorationImage(
-  //                           image: NetworkImage(item),
-  //                           fit: BoxFit.cover,
-  //                         ),
-  //                         boxShadow: [
-  //                           BoxShadow(
-  //                             color: Colors.black.withOpacity(0.08),
-  //                             blurRadius: 8.0,
-  //                             offset: const Offset(0, 4),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ))
-  //                 .toList(),
-  //           ),
-  //         ),
-  //         const SizedBox(height: 16),
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: ayatImages.asMap().entries.map((entry) {
-  //             bool isActive = _currentAyatIndex == entry.key;
-  //             return AnimatedContainer(
-  //               duration: const Duration(milliseconds: 300),
-  //               width: isActive
-  //                   ? 24.0
-  //                   : 8.0, // Panjang saat aktif, pendek saat tidak
-  //               height: 6.0, // Ketebalan indikator
-  //               margin: const EdgeInsets.symmetric(horizontal: 4.0),
-  //               decoration: BoxDecoration(
-  //                 borderRadius: BorderRadius.circular(10.0),
-  //                 color:
-  //                     isActive ? const Color(0xFF1B7A3E) : Colors.grey.shade300,
-  //               ),
-  //             );
-  //           }).toList(),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget _buildQuickCards() {
     return Padding(
@@ -495,9 +332,9 @@ class _HomePageState extends State<HomePage>
         children: [
           Expanded(
             child: _buildQuickCard(
-              icon: Icons.trending_up_rounded,
+              icon: Icons.assignment_rounded,
               label: 'Rekap\nAbsensi',
-              color: const Color(0xFF1B7A3E),
+              color: _green,
               bgColor: const Color(0xFFE8F5EE),
             ),
           ),
@@ -583,24 +420,6 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget _buildNotifSection() {
-    final List<Map<String, String>> notifItems = [
-      {
-        'title': 'Pengumuman Libur Akhir Semester',
-        'date': '5 Mar 2026',
-        'category': 'Pengumuman',
-      },
-      {
-        'title': 'Jadwal Ujian Kitab Kuning Kelas Wustha',
-        'date': '4 Mar 2026',
-        'category': 'Akademik',
-      },
-      {
-        'title': 'Penerimaan Santri Baru Tahun Ajaran 2026',
-        'date': '1 Mar 2026',
-        'category': 'Pendaftaran',
-      },
-    ];
-
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
       child: Column(
@@ -615,7 +434,7 @@ class _HomePageState extends State<HomePage>
                     width: 4,
                     height: 20,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5C842),
+                      color: _gold,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -631,17 +450,19 @@ class _HomePageState extends State<HomePage>
                 ],
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Get.toNamed(Routes.NOTIFIKASI);
+                },
                 child: const Text('Lihat Semua',
                     style: TextStyle(
-                        color: Color(0xFF1B7A3E),
+                        color: _green,
                         fontSize: 15,
                         fontWeight: FontWeight.w600)),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          ...notifItems.map((item) => _buildNotifCard(item)),
+          ...controller.notifItems.map((item) => _buildNotifCard(item)),
         ],
       ),
     );
@@ -650,10 +471,10 @@ class _HomePageState extends State<HomePage>
   Widget _buildNotifCard(Map<String, String> item) {
     final catColors = {
       'Pengumuman': const Color(0xFFFF6B6B),
-      'Akademik': const Color(0xFF1B7A3E),
+      'Akademik': _green,
       'Pendaftaran': const Color(0xFF4A90D9),
     };
-    final color = catColors[item['category']] ?? const Color(0xFF1B7A3E);
+    final color = catColors[item['category']] ?? _green;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),

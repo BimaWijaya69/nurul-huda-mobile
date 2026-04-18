@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
 import 'package:nurul_huda_mobile/helpers/arabic_helper.dart';
 import 'package:nurul_huda_mobile/views/soal/soal_controller.dart';
+import 'package:nurul_huda_mobile/widget/error.dart';
+import 'package:nurul_huda_mobile/widget/skeleton_card.dart';
 
 class SoalPage extends StatelessWidget {
   SoalPage({Key? key}) : super(key: key);
@@ -13,8 +15,9 @@ class SoalPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
-        body: Obx(() {
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: Obx(
+        () {
           return Column(
             children: [
               _buildCustomAppBar(context),
@@ -23,12 +26,47 @@ class SoalPage extends StatelessWidget {
               ),
             ],
           );
-        }));
+        },
+      ),
+    );
   }
 
   Widget _buildContent() {
     if (controller.isLoading.value) {
-      return const Center(child: CircularProgressIndicator(color: _green));
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 8,
+        itemBuilder: (context, index) {
+          return const SkeletonCard();
+        },
+      );
+    }
+
+    if (controller.isError.value) {
+      String type = controller.errorType.value;
+
+      switch (type) {
+        case 'network':
+          return ErrorStateWidget.network(
+            onRetry: () => controller.fetchMapelKelas(),
+          );
+        case 'timeout':
+          return ErrorStateWidget.timeout(
+            onRetry: () => controller.fetchMapelKelas(),
+          );
+        case 'unauthorized':
+          return ErrorStateWidget.unauthorized(
+            onRetry: () {
+              // Get.offAllNamed(Routes.LOGIN);
+            },
+          );
+        case 'server':
+        default:
+          return ErrorStateWidget.server(
+            onRetry: () => controller.fetchMapelKelas(),
+          );
+      }
     }
 
     if (controller.listMapel.isEmpty) {
