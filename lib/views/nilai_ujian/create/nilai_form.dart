@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nurul_huda_mobile/views/nilai/create/nilai_form_controller.dart';
+import 'package:nurul_huda_mobile/data/models/santri.dart';
+import 'package:nurul_huda_mobile/helpers/arabic_helper.dart';
+import 'package:nurul_huda_mobile/views/nilai_ujian/create/nilai_form_controller.dart';
 
-class InputNilaiPage extends GetView<InputNilaiController> {
-  const InputNilaiPage({Key? key}) : super(key: key);
+class NilaiFormPage extends GetView<NilaiUjianFormController> {
+  const NilaiFormPage({Key? key}) : super(key: key);
 
   static const Color _green = Color(0xFF1B7A3E);
-  static const Color _greenDark = Color(0xFF0D4A24);
-  static const Color _greenMid = Color(0xFF1B7A3E);
-  static const Color _greenLight = Color(0xFF25A355);
 
   @override
   Widget build(BuildContext context) {
-    Get.put(InputNilaiController());
+    Get.put(NilaiUjianFormController());
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -22,7 +21,12 @@ class InputNilaiPage extends GetView<InputNilaiController> {
           _buildSearchBar(),
           Expanded(
             child: Obx(() {
-              if (controller.filteredListSantri.isEmpty) {
+              if (controller.isLoading.value) {
+                return const Center(
+                    child: CircularProgressIndicator(color: _green));
+              }
+
+              if (controller.filteredSantri.isEmpty) {
                 return Center(
                   child: Text(
                     "Santri tidak ditemukan",
@@ -32,9 +36,9 @@ class InputNilaiPage extends GetView<InputNilaiController> {
               }
               return ListView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: controller.filteredListSantri.length,
+                itemCount: controller.filteredSantri.length,
                 itemBuilder: (context, index) {
-                  final santri = controller.filteredListSantri[index];
+                  final santri = controller.filteredSantri[index];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12.0),
                     child: _buildSantriRow(santri),
@@ -48,23 +52,36 @@ class InputNilaiPage extends GetView<InputNilaiController> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: ElevatedButton(
-            onPressed: () => controller.simpanNilai(),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _green,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              elevation: 4,
-              shadowColor: _green.withOpacity(0.4),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: const Text(
-              'Simpan Semua Nilai',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
+          child: Obx(() => ElevatedButton(
+                onPressed: controller.isSaving.value
+                    ? null
+                    : () {
+                        FocusManager.instance.primaryFocus
+                            ?.unfocus(); // Tutup keyboard
+                        controller.submitSemuaNilai();
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  elevation: 4,
+                  shadowColor: _green.withOpacity(0.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: controller.isSaving.value
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2))
+                    : const Text(
+                        'Simpan Semua Nilai',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+              )),
         ),
       ),
     );
@@ -73,11 +90,7 @@ class InputNilaiPage extends GetView<InputNilaiController> {
   Widget _buildHeader(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomCenter,
-            colors: [_greenDark, _greenMid, _greenLight],
-          ),
+          color: _green,
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
@@ -108,23 +121,23 @@ class InputNilaiPage extends GetView<InputNilaiController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Obx(() => Text(
-                          controller.namaMapel.value,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        )),
+                    Text(
+                      controller.mapelData.nama_mapel,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Obx(() => Text(
-                          'Input Nilai • ${controller.namaKelas.value}',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        )),
+                    Text(
+                      'Input Nilai • ${ArabicHelper.getKelasArab(controller.mapelData.kelas_id)}',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -154,7 +167,8 @@ class InputNilaiPage extends GetView<InputNilaiController> {
             Expanded(
               child: TextField(
                 controller: controller.searchController,
-                onChanged: (value) => controller.searchSantri(value),
+                // 👇 Perbaikan pemanggilan fungsi filter 👇
+                // (Tidak perlu onChanged karena di controller sudah pakai Listener)
                 decoration: InputDecoration(
                   hintText: 'Cari nama santri...',
                   hintStyle: TextStyle(
@@ -173,7 +187,6 @@ class InputNilaiPage extends GetView<InputNilaiController> {
                         color: Colors.grey, size: 20),
                     onPressed: () {
                       controller.searchController.clear();
-                      controller.searchSantri('');
                       FocusManager.instance.primaryFocus?.unfocus();
                     },
                   )
@@ -184,7 +197,7 @@ class InputNilaiPage extends GetView<InputNilaiController> {
     );
   }
 
-  Widget _buildSantriRow(SantriNilaiUIModel santri) {
+  Widget _buildSantriRow(Santri santri) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -201,25 +214,22 @@ class InputNilaiPage extends GetView<InputNilaiController> {
       ),
       child: Row(
         children: [
-          // Lingkaran Inisial Nama
           CircleAvatar(
             backgroundColor: _green.withOpacity(0.1),
             radius: 20,
             child: Text(
-              santri.nama[0].toUpperCase(),
+              santri.nama![0].toUpperCase(),
               style:
                   const TextStyle(color: _green, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(width: 12),
-
-          // Info Nama & NIS
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  santri.nama,
+                  santri.nama!,
                   style: const TextStyle(
                       fontWeight: FontWeight.w600, fontSize: 15),
                   maxLines: 1,
@@ -233,21 +243,18 @@ class InputNilaiPage extends GetView<InputNilaiController> {
               ],
             ),
           ),
-
           const SizedBox(width: 12),
-
-          // Kotak Input Angka
           SizedBox(
-            width: 70, // Lebar proporsional untuk angka 0-100
+            width: 70,
             child: TextField(
-              controller: santri.nilaiController,
-              keyboardType:
-                  TextInputType.number, // Wajib angka agar muncul numpad
+              // 👇 DI SINI MAGIC NYA: Ambil controller dari Map di Controller GetX 👇
+              controller: controller.nilaiControllers[santri.id!],
+              keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
-              maxLength: 3, // Maksimal angka 100 (3 digit)
+              maxLength: 3,
               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
               decoration: InputDecoration(
-                counterText: "", // Hilangkan teks 0/3 di bawah
+                counterText: "",
                 contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 filled: true,
                 fillColor: Colors.grey.shade100,

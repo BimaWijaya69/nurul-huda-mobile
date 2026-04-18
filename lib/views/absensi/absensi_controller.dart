@@ -38,7 +38,7 @@ class AbsensiController extends GetxController {
   Future<void> fetchJadwalHariIni() async {
     try {
       isLoading(true);
-      int guruId = 5;
+      int guruId = 15;
 
       final responseData = await _absensiService.getJadwalHariIni(guruId);
 

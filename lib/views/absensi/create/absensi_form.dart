@@ -341,12 +341,15 @@ class _AbsensiFormState extends State<AbsensiForm> {
                       height: 20,
                       child: CircularProgressIndicator(
                           color: Colors.white, strokeWidth: 2))
-                  : const Row(
+                  : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.save_rounded, color: Colors.white, size: 20),
                         SizedBox(width: 8),
-                        Text('Simpan Absensi',
+                        Text(
+                            controller.isEditMode
+                                ? 'Simpan Perubahan'
+                                : 'Simpan Absensi',
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

@@ -1,56 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:nurul_huda_mobile/views/nilai/nilai_controller.dart';
+import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
+import 'package:nurul_huda_mobile/data/models/nilai_ujian.dart';
+import 'package:nurul_huda_mobile/helpers/arabic_helper.dart';
+import 'package:nurul_huda_mobile/views/nilai_ujian/nilai_controller.dart';
 
-class DaftarNilaiPage extends GetView<DaftarNilaiController> {
+class DaftarNilaiPage extends GetView<NilaiUjianController> {
   const DaftarNilaiPage({Key? key}) : super(key: key);
 
   static const Color _green = Color(0xFF1B7A3E);
-  static const Color _greenDark = Color(0xFF0D4A24);
-  static const Color _greenMid = Color(0xFF1B7A3E);
-  static const Color _greenLight = Color(0xFF25A355);
 
   @override
   Widget build(BuildContext context) {
-    Get.put(DaftarNilaiController());
+    Get.put(NilaiUjianController());
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      body: Column(
-        children: [
-          _buildCustomAppBar(context),
-          Expanded(
-            child: Obx(() {
-              if (controller.listJadwal.isEmpty) {
-                return const Center(child: Text("Belum ada jadwal ujian"));
-              }
-
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: controller.listJadwal.length,
-                itemBuilder: (context, index) {
-                  final jadwal = controller.listJadwal[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: _buildJadwalCard(jadwal),
-                  );
-                },
-              );
-            }),
+        backgroundColor: const Color(0xFFF8FAFC),
+        body: Obx(
+          () => Column(
+            children: [
+              _buildCustomAppBar(context),
+              Expanded(child: _buildContent()),
+            ],
           ),
-        ],
-      ),
-    );
+        ));
   }
 
   Widget _buildCustomAppBar(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomCenter,
-            colors: [_greenDark, _greenMid, _greenLight],
-          ),
+          color: _green,
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
           boxShadow: [
             BoxShadow(
@@ -84,7 +63,7 @@ class DaftarNilaiPage extends GetView<DaftarNilaiController> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Input Nilai Santri',
+                      'Semester ${controller.semester.value} - ${controller.tahun_ajaran.value}',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.8),
                         fontSize: 13,
@@ -103,7 +82,27 @@ class DaftarNilaiPage extends GetView<DaftarNilaiController> {
     );
   }
 
-  Widget _buildJadwalCard(JadwalUjianUIModel jadwal) {
+  Widget _buildContent() {
+    if (controller.isLoading.value) {
+      return const Center(child: CircularProgressIndicator(color: _green));
+    } else if (controller.listMapel.isEmpty) {
+      return const Center(child: Text("Tidak ada mapel yang tersedia"));
+    } else {
+      return ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: controller.listMapel.length,
+        itemBuilder: (context, index) {
+          final mapel = controller.listMapel[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: _buildMapelCard(mapel),
+          );
+        },
+      );
+    }
+  }
+
+  Widget _buildMapelCard(MapelUjianItem mapel) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -138,7 +137,7 @@ class DaftarNilaiPage extends GetView<DaftarNilaiController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      jadwal.namaMapel,
+                      mapel.nama_mapel,
                       style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -146,7 +145,7 @@ class DaftarNilaiPage extends GetView<DaftarNilaiController> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Kelas ${jadwal.namaKelas} • ${jadwal.tanggalUjian}',
+                      'الصف ${ArabicHelper.getKelasArab(mapel.kelas_id)}',
                       style:
                           TextStyle(fontSize: 13, color: Colors.grey.shade600),
                     ),
@@ -154,7 +153,7 @@ class DaftarNilaiPage extends GetView<DaftarNilaiController> {
                 ),
               ),
 
-              _buildStatusBadge(jadwal.isDinilai == true),
+              _buildStatusBadge(mapel.sudahDinilai == true),
             ],
           ),
 
@@ -167,9 +166,12 @@ class DaftarNilaiPage extends GetView<DaftarNilaiController> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (!jadwal.isDinilai != false) ...[
+              if (!mapel.sudahDinilai) ...[
                 ElevatedButton.icon(
-                  onPressed: () => controller.bukaInputNilai(jadwal.id),
+                  onPressed: () => Get.toNamed(Routes.CREATE_NILAI, arguments: {
+                    'mapel': mapel,
+                    'isEdit': mapel.sudahDinilai
+                  }),
                   icon: const Icon(Icons.edit_document,
                       size: 18, color: Colors.white),
                   label: const Text('Input Nilai'),
@@ -183,7 +185,10 @@ class DaftarNilaiPage extends GetView<DaftarNilaiController> {
                 ),
               ] else ...[
                 OutlinedButton.icon(
-                  onPressed: () => controller.bukaInputNilai(jadwal.id),
+                  onPressed: () => Get.toNamed(Routes.CREATE_NILAI, arguments: {
+                    'mapel': mapel,
+                    'isEdit': mapel.sudahDinilai
+                  }),
                   icon: const Icon(Icons.visibility_outlined,
                       size: 18, color: _green),
                   label: const Text('Lihat Nilai'),

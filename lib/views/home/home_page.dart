@@ -1,68 +1,17 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:get/get.dart';
+import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
+import 'package:nurul_huda_mobile/views/home/home_controller.dart';
 import 'package:nurul_huda_mobile/views/home/widget/jadwal_mengajar_widget.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+// 👇 BERUBAH JADI STATELESS WIDGET 👇
+class HomePage extends StatelessWidget {
+  HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+  // Panggil controller di sini
+  final HomeController controller = Get.put(HomeController());
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
-  static const _green = Color(0xFF1B7A3E);
-  static const _darkGreen = Color(0xFF0D4A24);
   static const _gold = Color(0xFFF5C842);
-  static const _lightGreen = Color(0xFF25A355);
-
-  late AnimationController _headerAnim;
-  late Animation<double> _headerFade;
-  late Animation<Offset> _headerSlide;
-
-  DateTime _now = DateTime.now();
-  // Coursel
-  // int _currentAyatIndex = 1;
-  // final List<String> ayatImages = [
-  //   'https://picsum.photos/id/1011/400/400',
-  //   'https://picsum.photos/id/1012/400/400',
-  //   'https://picsum.photos/id/1013/400/400',
-  //   'https://picsum.photos/id/1014/400/400',
-  // ];
-
-  @override
-  void initState() {
-    super.initState();
-
-    _headerAnim = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 900),
-    )..forward();
-
-    _headerFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _headerAnim, curve: Curves.easeIn),
-    );
-    _headerSlide = Tween<Offset>(
-      begin: const Offset(0, -0.15),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _headerAnim, curve: Curves.easeOut));
-  }
-
-  @override
-  void dispose() {
-    _headerAnim.dispose();
-    super.dispose();
-  }
-
-  String get _dayAndTimeStr {
-    return DateFormat('EEEE HH:mm', 'id_ID').format(_now);
-  }
-
-  String get _fullDateStr {
-    return DateFormat('d MMMM y', 'id_ID').format(_now);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,10 +27,7 @@ class _HomePageState extends State<HomePage>
           ),
           RefreshIndicator(
             onRefresh: () async {
-              await Future.delayed(const Duration(milliseconds: 800));
-              setState(() {
-                _now = DateTime.now();
-              });
+              await controller.refreshData();
             },
             child: MediaQuery.removePadding(
               context: context,
@@ -92,7 +38,6 @@ class _HomePageState extends State<HomePage>
                   SliverToBoxAdapter(child: _buildHeader(context)),
                   SliverToBoxAdapter(child: _buildSearchBar()),
                   SliverToBoxAdapter(child: _buildJadwalSection()),
-                  SliverToBoxAdapter(child: _buildQuickCards()),
                   SliverToBoxAdapter(child: _buildNotifSection()),
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
                 ],
@@ -108,9 +53,9 @@ class _HomePageState extends State<HomePage>
     double statusBarHeight = MediaQuery.of(context).padding.top;
 
     return FadeTransition(
-      opacity: _headerFade,
+      opacity: controller.headerFade,
       child: SlideTransition(
-        position: _headerSlide,
+        position: controller.headerSlide,
         child: Container(
           margin: const EdgeInsets.only(bottom: 0),
           decoration: const BoxDecoration(
@@ -123,7 +68,6 @@ class _HomePageState extends State<HomePage>
           ),
           child: Stack(
             children: [
-              // Decorative background image
               Positioned(
                 right: 0,
                 bottom: 0,
@@ -137,7 +81,6 @@ class _HomePageState extends State<HomePage>
                   ),
                 ),
               ),
-
               Padding(
                 padding: EdgeInsets.fromLTRB(20, 12 + statusBarHeight, 20, 24),
                 child: Column(
@@ -200,8 +143,6 @@ class _HomePageState extends State<HomePage>
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.location_on_rounded,
-                            color: _gold, size: 14),
                         const SizedBox(width: 4),
                         Text(
                           'MANGUNSARI, TEKUNG, LUMAJANG',
@@ -215,17 +156,17 @@ class _HomePageState extends State<HomePage>
                       ],
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      _dayAndTimeStr,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 38,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
-                        fontFeatures: [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                    const SizedBox(height: 6),
+                    Obx(() => Text(
+                          controller.jamSekarang.value,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 38,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.5,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        )),
+                    const SizedBox(height: 14),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 18, vertical: 6),
@@ -233,23 +174,29 @@ class _HomePageState extends State<HomePage>
                         color: Colors.black.withOpacity(0.25),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text(
-                        _fullDateStr,
-                        style: const TextStyle(
-                          color: _gold,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+                      child: Obx(() => Text(
+                            controller.tanggalSekarang.value,
+                            style: const TextStyle(
+                              color: _gold,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          )),
                     ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _headerChip(Icons.schedule_rounded, 'Jadwal Absensi'),
-                        _headerChip(Icons.assignment_turned_in_rounded,
-                            'Riwayat Absensi'),
+                        _headerChip(Icons.schedule_rounded, 'Jadwal Absensi',
+                            () {
+                          print("ok");
+                        }),
+                        _headerChip(
+                            Icons.assignment_turned_in_rounded, 'Rekap Absensi',
+                            () {
+                          Get.toNamed(Routes.REKAP_ABSENSI);
+                        }),
                       ],
                     ),
                   ],
@@ -262,27 +209,27 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  Widget _headerChip(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.18),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
+  Widget _headerChip(IconData icon, String label, VoidCallback onPressed) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, color: Colors.white, size: 16),
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
       ),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.white, size: 16),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: Colors.white.withOpacity(0.18),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(color: Colors.white.withOpacity(0.3)),
+        ),
       ),
     );
   }
@@ -346,237 +293,22 @@ class _HomePageState extends State<HomePage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header — sama persis dengan section lain
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5C842),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+          Obx(() {
+            if (controller.isLoadingJadwal.value) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF1B7A3E),
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Jadwal Mengajar',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1A1A2E)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
+                ),
+              );
+            }
 
-          // Widget tabel
-          JadwalMengajarWidget(jadwalList: dummyJadwal),
-        ],
-      ),
-    );
-  }
-
-  // Widget _buildAyatSection() {
-  //   return Padding(
-  //     padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //           children: [
-  //             Row(
-  //               children: [
-  //                 Container(
-  //                   width: 4,
-  //                   height: 20,
-  //                   decoration: BoxDecoration(
-  //                     color: const Color(0xFFF5C842),
-  //                     borderRadius: BorderRadius.circular(2),
-  //                   ),
-  //                 ),
-  //                 const SizedBox(width: 8),
-  //                 const Text(
-  //                   'Ayat Pilihan Hari Ini',
-  //                   style: TextStyle(
-  //                       fontSize: 18,
-  //                       fontWeight: FontWeight.w800,
-  //                       color: Color(0xFF1A1A2E)),
-  //                 ),
-  //               ],
-  //             ),
-  //             TextButton(
-  //               onPressed: () {},
-  //               child: const Text('Lihat Semua',
-  //                   style: TextStyle(
-  //                       color: Color(0xFF1B7A3E),
-  //                       fontSize: 15,
-  //                       fontWeight: FontWeight.w600)),
-  //             ),
-  //           ],
-  //         ),
-  //         const SizedBox(height: 16),
-  //         Container(
-  //           padding:
-  //               const EdgeInsets.symmetric(vertical: 20.0), // Jarak atas bawah
-  //           decoration: BoxDecoration(
-  //             image: DecorationImage(
-  //                 image: AssetImage('images/background_coursel.jpg'),
-  //                 fit: BoxFit.cover),
-  //           ),
-  //           child: CarouselSlider(
-  //             options: CarouselOptions(
-  //               height: 240.0,
-  //               viewportFraction: 0.5,
-  //               enlargeCenterPage: true,
-  //               enableInfiniteScroll: true,
-  //               initialPage: 1,
-  //               onPageChanged: (index, reason) {
-  //                 setState(() {
-  //                   _currentAyatIndex = index;
-  //                 });
-  //               },
-  //             ),
-  //             items: ayatImages
-  //                 .map((item) => Container(
-  //                       margin: const EdgeInsets.symmetric(horizontal: 5.0),
-  //                       decoration: BoxDecoration(
-  //                         borderRadius: BorderRadius.circular(16.0),
-  //                         image: DecorationImage(
-  //                           image: NetworkImage(item),
-  //                           fit: BoxFit.cover,
-  //                         ),
-  //                         boxShadow: [
-  //                           BoxShadow(
-  //                             color: Colors.black.withOpacity(0.08),
-  //                             blurRadius: 8.0,
-  //                             offset: const Offset(0, 4),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ))
-  //                 .toList(),
-  //           ),
-  //         ),
-  //         const SizedBox(height: 16),
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: ayatImages.asMap().entries.map((entry) {
-  //             bool isActive = _currentAyatIndex == entry.key;
-  //             return AnimatedContainer(
-  //               duration: const Duration(milliseconds: 300),
-  //               width: isActive
-  //                   ? 24.0
-  //                   : 8.0, // Panjang saat aktif, pendek saat tidak
-  //               height: 6.0, // Ketebalan indikator
-  //               margin: const EdgeInsets.symmetric(horizontal: 4.0),
-  //               decoration: BoxDecoration(
-  //                 borderRadius: BorderRadius.circular(10.0),
-  //                 color:
-  //                     isActive ? const Color(0xFF1B7A3E) : Colors.grey.shade300,
-  //               ),
-  //             );
-  //           }).toList(),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  Widget _buildQuickCards() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildQuickCard(
-              icon: Icons.trending_up_rounded,
-              label: 'Rekap\nAbsensi',
-              color: const Color(0xFF1B7A3E),
-              bgColor: const Color(0xFFE8F5EE),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildQuickCard(
-              icon: Icons.forum_rounded,
-              label: 'Info\nPesantren',
-              color: const Color(0xFFE8A020),
-              bgColor: const Color(0xFFFFF8E6),
-              badge: '3',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickCard({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required Color bgColor,
-    String? badge,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withOpacity(0.15)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(icon, color: color, size: 24),
-                if (badge != null)
-                  Positioned(
-                    right: 4,
-                    top: 4,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 1.5),
-                      ),
-                      child: Center(
-                        child: Text(badge,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: color,
-              height: 1.3,
-            ),
-          ),
+            return JadwalMengajarWidget(
+              jadwalList: controller.listJadwal.toList(),
+            );
+          }),
         ],
       ),
     );

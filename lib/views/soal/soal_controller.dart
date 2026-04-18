@@ -28,8 +28,7 @@ class SoalController extends GetxController {
           .toList());
     } catch (e) {
       Get.snackbar('Kesalahan', 'Gagal mengambil data: $e');
-      print(
-          'Error detail: $e'); // Tambahkan ini biar kalau ada error, gampang dilacak di console
+      print('Error detail: $e');
     } finally {
       isLoading(false);
     }
