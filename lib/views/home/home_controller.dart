@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:nurul_huda_mobile/data/models/jadwal_kbm.dart';
 import 'package:nurul_huda_mobile/data/services/jadwal_kbm_service.dart';
+import 'package:nurul_huda_mobile/views/auth/auth_controller.dart';
 
 class HomeController extends GetxController
     with GetSingleTickerProviderStateMixin {
@@ -16,11 +19,12 @@ class HomeController extends GetxController
 
   var jamSekarang = ''.obs;
   var tanggalSekarang = ''.obs;
+  var namaGuru = ''.obs;
   Timer? _timer;
 
   var isLoadingJadwal = true.obs;
   var listJadwal = <AgendaMengajarItem>[].obs;
-
+  var currentAddress = 'MENDETEKSI LOKASI...'.obs;
   @override
   void onInit() {
     super.onInit();
@@ -43,6 +47,8 @@ class HomeController extends GetxController
     });
 
     fetchJadwalGuru();
+    _fetchCurrentAddress();
+    namaGuru.value = AuthController.to.currentUser.value?.name ?? '';
   }
 
   void _updateJam() {
@@ -58,21 +64,53 @@ class HomeController extends GetxController
   Future<void> refreshData() async {
     _updateJam();
     await fetchJadwalGuru();
+    await _fetchCurrentAddress();
   }
 
   Future<void> fetchJadwalGuru() async {
     try {
       isLoadingJadwal(true);
 
-      int guruId = 15;
+      int? guruId = AuthController.to.currentUser.value?.id;
 
-      var data = await _jadwalService.getJadwalGuru(guruId);
+      var data = await _jadwalService.getJadwalGuru(guruId!);
 
       listJadwal.assignAll(data);
     } catch (e) {
       print('Error Fetch Jadwal: $e');
     } finally {
       isLoadingJadwal(false);
+    }
+  }
+
+  Future<void> _fetchCurrentAddress() async {
+    try {
+      final position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.medium);
+
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+
+        String desa = place.subLocality ?? '';
+        String kecamatan = place.locality ?? '';
+        String kabupaten = place.subAdministrativeArea ?? '';
+
+        String formattedAddress = '$desa, $kecamatan, $kabupaten';
+
+        formattedAddress = formattedAddress
+            .replaceAll('Kabupaten ', '')
+            .replaceAll('Kecamatan ', '')
+            .replaceAll('Kec. ', '')
+            .replaceAll('Kab. ', '');
+
+        currentAddress.value = formattedAddress.toUpperCase();
+      }
+    } catch (e) {
+      print('Error fetching location: $e');
+      currentAddress.value = 'LOKASI TIDAK DITEMUKAN';
     }
   }
 

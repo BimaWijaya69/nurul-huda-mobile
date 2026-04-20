@@ -138,7 +138,7 @@ class AbsensiSantriFormController extends GetxController {
         status: 1,
         tanggal: hariIni,
         materi_pembelajaran: materi,
-        ketIzin: null,
+        ket_izin: null,
       );
 
       List<AbsensiItem> listAbsenSantri = listSantriUi.map((item) {

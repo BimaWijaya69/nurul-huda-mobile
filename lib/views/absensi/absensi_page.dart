@@ -131,14 +131,9 @@ class AbsensiPage extends StatelessWidget {
             bool belumMulai = TimeHelper.isBeforeStartTime(jadwal.jam_mulai);
             bool sudahLewat = TimeHelper.isTimeExpired(jadwal.jam_selesai);
             if (jadwal.sudah_absen) {
-              if (jadwal.status_absen == '2') {
+              if (jadwal.status_absen == '2' || jadwal.status_absen == '4') {
                 if (sudahLewat) {
-                  Get.snackbar(
-                    'Waktu Habis',
-                    'Status Izin tidak bisa diubah karena jam pelajaran telah usai.',
-                    backgroundColor: Colors.orange.shade800,
-                    colorText: Colors.white,
-                  );
+                  return;
                 } else {
                   _showAbsensiBottomSheet(context, jadwal, belumMulai);
                 }
@@ -244,11 +239,16 @@ class AbsensiPage extends StatelessWidget {
     );
   }
 
+// --- POP-UP BOTTOM SHEET (KHUSUS BELUM ABSEN) ---
   void _showAbsensiBottomSheet(
       BuildContext context, dynamic jadwal, bool belumMulai) {
-    bool isBatalIzin = jadwal.sudah_absen && jadwal.status_absen == '2';
-
     String selectedStatus = 'Hadir';
+    if (jadwal.sudah_absen) {
+      if (jadwal.status_absen == '2') selectedStatus = 'Izin';
+      if (jadwal.status_absen == '4') selectedStatus = 'Sakit';
+    }
+
+    controller.alasanController.text = jadwal.ket_izin ?? '';
 
     showModalBottomSheet(
       context: context,
@@ -258,6 +258,7 @@ class AbsensiPage extends StatelessWidget {
         return StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
           bool isHadir = selectedStatus == 'Hadir';
+          bool isEditMode = jadwal.sudah_absen;
 
           return Container(
             padding: EdgeInsets.only(
@@ -280,52 +281,41 @@ class AbsensiPage extends StatelessWidget {
                             color: Colors.grey.shade300,
                             borderRadius: BorderRadius.circular(10)))),
                 const SizedBox(height: 20),
-                if (isBatalIzin) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.orange.withOpacity(0.3)),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.info_outline_rounded,
-                            color: Colors.orange, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text('Status Saat Ini: Izin',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.orange)),
-                              const SizedBox(height: 4),
-                              Text(jadwal.ket_izin ?? 'Tanpa keterangan',
-                                  style: TextStyle(
-                                      color: Colors.orange.shade800,
-                                      fontSize: 13)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                Text('Absensi Guru: ${jadwal.nama_mapel}',
+                Text(jadwal.nama_mapel,
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold)),
-                Text(
-                    '${jadwal.kelas_id} • ${jadwal.jam_mulai} - ${jadwal.jam_selesai}', // Hapus ArabicHelper kalau error
-                    style: TextStyle(color: Colors.grey.shade600)),
+                        fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(4)),
+                      child: Text(ArabicHelper.getKelasArab(jadwal.kelas_id),
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange.shade700,
+                              fontWeight: FontWeight.w600)),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(Icons.access_time_rounded,
+                        size: 14, color: Colors.grey.shade500),
+                    const SizedBox(width: 4),
+                    Text('${jadwal.jam_mulai} - ${jadwal.jam_selesai}',
+                        style: TextStyle(
+                            fontSize: 12, color: Colors.grey.shade600)),
+                  ],
+                ),
                 const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Divider()),
-                const Text('Ubah Status Kehadiran:',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                    isEditMode
+                        ? 'Ubah Status Kehadiran:'
+                        : 'Status Kehadiran Anda:',
+                    style: const TextStyle(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -335,23 +325,20 @@ class AbsensiPage extends StatelessWidget {
                         Colors.green,
                         selectedStatus,
                         (val) => setState(() => selectedStatus = val)),
-                    const SizedBox(width: 12),
-                    // Kalau mode batal izin, matikan tombol sakit & izin biar nggak bingung
-                    if (!isBatalIzin) ...[
-                      _buildStatusOption(
-                          'Sakit',
-                          Icons.sick_rounded,
-                          Colors.orange,
-                          selectedStatus,
-                          (val) => setState(() => selectedStatus = val)),
-                      const SizedBox(width: 12),
-                      _buildStatusOption(
-                          'Izin',
-                          Icons.assignment_late_rounded,
-                          Colors.blue,
-                          selectedStatus,
-                          (val) => setState(() => selectedStatus = val)),
-                    ]
+                    const SizedBox(width: 10),
+                    _buildStatusOption(
+                        'Sakit',
+                        Icons.sick_rounded,
+                        Colors.orange,
+                        selectedStatus,
+                        (val) => setState(() => selectedStatus = val)),
+                    const SizedBox(width: 10),
+                    _buildStatusOption(
+                        'Izin',
+                        Icons.assignment_late_rounded,
+                        Colors.blue,
+                        selectedStatus,
+                        (val) => setState(() => selectedStatus = val)),
                   ],
                 ),
                 const SizedBox(height: 24),
@@ -361,54 +348,42 @@ class AbsensiPage extends StatelessWidget {
                       ? CrossFadeState.showFirst
                       : CrossFadeState.showSecond,
                   firstChild: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: belumMulai
-                          ? null
-                          : () {
-                              Navigator.pop(context); // Tutup BottomSheet
-
-                              // 👇 LOGIKA ROUTING PINTAR 👇
-                              if (isBatalIzin || jadwal.sudah_absen) {
-                                // Kalau batal izin / sudah absen, arahkan ke halaman Edit
-                                Get.toNamed(Routes.EDIT_ABSENSI, arguments: {
-                                  'jadwal': jadwal,
-                                  'isEdit': true
-                                });
-                              } else {
-                                // Kalau murni baru, arahkan ke Create
-                                Get.toNamed(Routes.CREATE_ABSENSI,
-                                    arguments: {'jadwal': jadwal});
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1B7A3E),
-                          disabledBackgroundColor: Colors.grey.shade300,
-                          disabledForegroundColor: Colors.grey.shade500,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12))),
-                      child: Text(
-                          belumMulai
-                              ? 'Belum Masuk Jam'
-                              : (isBatalIzin
-                                  ? 'Batalkan Izin & Hadir'
-                                  : 'Lanjut Absen Santri'),
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
-                    ),
-                  ),
+                      width: double.infinity,
+                      child: Obx(() {
+                        bool isLoadingLoc = controller.isCheckingLocation.value;
+                        return ElevatedButton(
+                          onPressed: (belumMulai || isLoadingLoc)
+                              ? null
+                              : () {
+                                  controller.validasiLokasiDanAbsen(
+                                      jadwal, isEditMode);
+                                },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1B7A3E),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12))),
+                          child: Text(
+                              belumMulai
+                                  ? 'Belum Masuk Jam'
+                                  : (isEditMode
+                                      ? 'Simpan Perubahan Hadir'
+                                      : 'Lanjut Absen Santri'),
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
+                        );
+                      })),
                   secondChild: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Obx(() => CustomTextField(
-                            // Pastikan widget CustomTextField bos benar
                             controller: controller.alasanController,
-                            title: 'Keterangan / Alasan',
+                            title:
+                                '${selectedStatus == 'Sakit' ? 'Keterangan Sakit' : 'Keterangan Izin'}',
                             icon: Icons.edit_note_rounded,
-                            hintText: 'Tulis keterangan tidak hadir di sini...',
+                            hintText: 'Tulis keterangan di sini...',
                             maxLines: 3,
                             isRequired: true,
                             errorText: controller.alasanError.value,
@@ -418,7 +393,6 @@ class AbsensiPage extends StatelessWidget {
                         width: double.infinity,
                         child: Obx(() {
                           bool isLoading = controller.isSubmitting.value;
-
                           return ElevatedButton(
                             onPressed: isLoading
                                 ? null
@@ -440,8 +414,11 @@ class AbsensiPage extends StatelessWidget {
                                     height: 20,
                                     child: CircularProgressIndicator(
                                         color: Colors.white, strokeWidth: 2))
-                                : const Text('Kirim Izin',
-                                    style: TextStyle(
+                                : Text(
+                                    isEditMode
+                                        ? 'Update Keterangan'
+                                        : 'Kirim Keterangan',
+                                    style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white)),

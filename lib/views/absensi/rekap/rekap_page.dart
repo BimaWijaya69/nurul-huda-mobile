@@ -177,22 +177,18 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
           ),
           const SizedBox(height: 12),
 
-          // Grid Tanggal
           Obx(() {
             final now = controller.selectedDate.value;
             final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
             final firstDayOfMonth =
-                DateTime(now.year, now.month, 1).weekday % 7; // 0 = Minggu
+                DateTime(now.year, now.month, 1).weekday % 7;
 
-            // Menyiapkan array tanggal
             List<Widget> dayWidgets = [];
 
-            // Tanggal kosong di awal bulan (offset)
             for (int i = 0; i < firstDayOfMonth; i++) {
               dayWidgets.add(const SizedBox.shrink());
             }
 
-            // Loop tanggal 1 sampai akhir bulan
             for (int i = 1; i <= daysInMonth; i++) {
               String status = controller.getStatusForDate(i);
               dayWidgets.add(_buildDayCell(i, status));
@@ -213,44 +209,66 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
   }
 
   Widget _buildDayCell(int date, String status) {
-    Color bgColor = Colors.transparent;
-    Color textColor = const Color(0xFF1A1A2E);
-    FontWeight fontWeight = FontWeight.w500;
+    return Obx(() {
+      bool isSelected = controller.filterDate.value == date;
 
-    if (status == 'hadir') {
-      bgColor = _green;
-      textColor = Colors.white;
-      fontWeight = FontWeight.bold;
-    } else if (status == 'izin') {
-      bgColor = const Color(0xFFF5C842);
-      textColor = Colors.white;
-      fontWeight = FontWeight.bold;
-    } else if (status == 'alfa') {
-      bgColor = const Color(0xFFE53935);
-      textColor = Colors.white;
-      fontWeight = FontWeight.bold;
-    }
+      Color bgColor = Colors.transparent;
+      Color textColor = const Color(0xFF1A1A2E);
+      FontWeight fontWeight = FontWeight.w500;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: bgColor,
-        shape: BoxShape.circle,
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        date.toString(),
-        style: TextStyle(
-          color: textColor,
-          fontSize: 14,
-          fontWeight: fontWeight,
+      if (status == 'hadir') {
+        bgColor = _green;
+        textColor = Colors.white;
+        fontWeight = FontWeight.bold;
+      } else if (status == 'izin') {
+        bgColor = const Color(0xFFF5C842);
+        textColor = Colors.white;
+        fontWeight = FontWeight.bold;
+      } else if (status == 'sakit') {
+        bgColor = const Color(0xFF4A90D9);
+        textColor = Colors.white;
+        fontWeight = FontWeight.bold;
+      } else if (status == 'alfa') {
+        bgColor = const Color(0xFFE53935);
+        textColor = Colors.white;
+        fontWeight = FontWeight.bold;
+      }
+
+      return GestureDetector(
+        onTap: () {
+          if (status != 'none') {
+            controller.setFilterDate(date);
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: bgColor,
+            shape: BoxShape.circle,
+            border: isSelected
+                ? Border.all(
+                    color: const Color.fromARGB(221, 255, 255, 255), width: 2)
+                : null,
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                        color: bgColor.withOpacity(0.6),
+                        blurRadius: 8,
+                        spreadRadius: 2)
+                  ]
+                : [],
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            date.toString(),
+            style: TextStyle(
+                color: textColor, fontSize: 14, fontWeight: fontWeight),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  // ==========================================
-  // AKUMULASI (SUMMARY) CARD INTERAKTIF
-  // ==========================================
   Widget _buildSummaryRow() {
     final s = controller.rekapData.value?.summary;
     return Row(
@@ -260,6 +278,9 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
         _summaryItem(
             'Izin', '${s?.izin ?? 0}', const Color(0xFFF5C842), 'izin'),
         const SizedBox(width: 10),
+        _summaryItem(
+            'Sakit', '${s?.sakit ?? 0}', const Color(0xFF4A90D9), 'sakit'),
+        const SizedBox(width: 8),
         _summaryItem(
             'Alfa', '${s?.alfa ?? 0}', const Color(0xFFE53935), 'alfa'),
       ],
@@ -276,10 +297,8 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
-              // 👇 Background transparan tipis jika terpilih 👇
               color: isSelected ? color.withOpacity(0.1) : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              // 👇 Border menyala jika terpilih 👇
               border: Border.all(
                   color: isSelected ? color : Colors.grey.shade200,
                   width: isSelected ? 1.5 : 1),
@@ -290,7 +309,6 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
                     style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
-                        // Teks angka tetap pakai warna solid agar kontras
                         color: color)),
                 Text(label,
                     style: TextStyle(
@@ -319,13 +337,10 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // 👇 HEADER DENGAN GARIS VERTIKAL ALA HOME 👇
             Row(
               children: [
                 Obx(() {
-                  // Warna garis dinamis mengikuti filter
-                  Color barColor =
-                      const Color(0xFFF5C842); // Default Kuning/Emas
+                  Color barColor = const Color(0xFFF5C842);
                   if (controller.filterStatus.value != null) {
                     barColor = _getStatusColor(controller.filterStatus.value!);
                   }
@@ -339,21 +354,33 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
                   );
                 }),
                 const SizedBox(width: 8),
-                Obx(() => Text(
-                      controller.filterStatus.value == null
-                          ? 'Semua Riwayat'
-                          : 'Riwayat ${controller.filterStatus.value!.capitalizeFirst}',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w800,
-                          fontSize: 17,
-                          color: Color(0xFF1A1A2E)),
-                    )),
+                Obx(() {
+                  String title = 'Semua Riwayat';
+                  if (controller.filterDate.value != null) {
+                    title = 'Riwayat Tgl ${controller.filterDate.value}';
+                  } else if (controller.filterStatus.value != null) {
+                    title =
+                        'Riwayat ${controller.filterStatus.value!.capitalizeFirst}';
+                  }
+
+                  return Text(
+                    title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 17,
+                        color: Color(0xFF1A1A2E)),
+                  );
+                }),
               ],
             ),
             Obx(() {
-              if (controller.filterStatus.value != null) {
+              if (controller.filterStatus.value != null ||
+                  controller.filterDate.value != null) {
                 return GestureDetector(
-                  onTap: () => controller.setFilter(null),
+                  onTap: () {
+                    controller.setFilter(null);
+                    controller.setFilterDate(null);
+                  },
                   child: const Text('Lihat Semua',
                       style: TextStyle(
                           color: _green,
@@ -365,8 +392,7 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
             }),
           ],
         ),
-        const SizedBox(height: 16), // Jarak agak dijauhkan sedikit
-
+        const SizedBox(height: 16),
         if (list.isEmpty)
           Center(
             child: Padding(
@@ -375,9 +401,8 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
                   style: TextStyle(color: Colors.grey.shade500)),
             ),
           ),
-
         ...list.map((item) {
-          final isIzin = item.status == 'izin';
+          final hasKeterangan = item.status == 'izin' || item.status == 'sakit';
           return Container(
             margin: const EdgeInsets.only(bottom: 10),
             padding: const EdgeInsets.all(14),
@@ -418,27 +443,34 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
                       Text('الصف ${ArabicHelper.getKelasArab(item.kelasId)}',
                           style: TextStyle(
                               fontSize: 13, color: Colors.grey.shade600)),
-                      if (isIzin && item.keterangan != null) ...[
+                      if (hasKeterangan && item.keterangan != null) ...[
                         const SizedBox(height: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
+                            color: item.status == 'sakit'
+                                ? Colors.blue.withOpacity(0.1)
+                                : Colors.orange.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.info_outline_rounded,
-                                  size: 14, color: Colors.orange),
+                              Icon(Icons.info_outline_rounded,
+                                  size: 14,
+                                  color: item.status == 'sakit'
+                                      ? Colors.blue
+                                      : Colors.orange),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
                                   item.keterangan!,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.orange,
+                                      color: item.status == 'sakit'
+                                          ? Colors.blue
+                                          : Colors.orange,
                                       height: 1.3),
                                 ),
                               ),
@@ -460,6 +492,7 @@ class RekapAbsensiPage extends GetView<RekapAbsensiController> {
   Color _getStatusColor(String status) {
     if (status == 'hadir') return _green;
     if (status == 'izin') return const Color(0xFFF5C842);
+    if (status == 'sakit') return const Color(0xFF4A90D9);
     if (status == 'alfa') return const Color(0xFFE53935);
     return Colors.grey;
   }

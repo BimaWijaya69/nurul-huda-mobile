@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
 import 'package:nurul_huda_mobile/data/models/absensi_guru.dart';
 import 'package:nurul_huda_mobile/data/models/jadwal_kbm.dart';
 import 'package:nurul_huda_mobile/data/services/absensi_service.dart';
 import 'package:intl/intl.dart';
+import 'package:nurul_huda_mobile/helpers/location_helper.dart';
+import 'package:nurul_huda_mobile/views/auth/auth_controller.dart';
 
 class AbsensiController extends GetxController {
   final AbsensiService _absensiService = AbsensiService();
   var isLoading = true.obs;
-
+  var isCheckingLocation = false.obs;
   var hariIni = ''.obs;
   var tanggalLengkap = ''.obs;
   var isSubmitting = false.obs;
@@ -35,12 +38,40 @@ class AbsensiController extends GetxController {
     super.onClose();
   }
 
+  Future<void> validasiLokasiDanAbsen(dynamic jadwal, bool isEditMode) async {
+    try {
+      isCheckingLocation(true);
+
+      bool isDiPondok = await LocationHelper.isWithinRadius();
+
+      if (isDiPondok) {
+        Get.back();
+        Get.toNamed(isEditMode ? Routes.EDIT_ABSENSI : Routes.CREATE_ABSENSI,
+            arguments: {'jadwal': jadwal, 'isEdit': isEditMode});
+      } else {
+        Get.snackbar(
+          'Di Luar Jangkauan',
+          'Anda berada di luar area Pondok Pesantren. Silakan merapat ke area pondok untuk absen Hadir.',
+          backgroundColor: Colors.red.shade700,
+          colorText: Colors.white,
+          icon: const Icon(Icons.location_off_rounded, color: Colors.white),
+          duration: const Duration(seconds: 4),
+        );
+      }
+    } catch (e) {
+      Get.snackbar('Gagal Membaca Lokasi', e.toString(),
+          backgroundColor: Colors.red.shade800, colorText: Colors.white);
+    } finally {
+      isCheckingLocation(false);
+    }
+  }
+
   Future<void> fetchJadwalHariIni() async {
     try {
       isLoading(true);
-      int guruId = 15;
+      int? guruId = AuthController.to.currentUser.value?.id;
 
-      final responseData = await _absensiService.getJadwalHariIni(guruId);
+      final responseData = await _absensiService.getJadwalHariIni(guruId!);
 
       hariIni.value = responseData.hari;
       tanggalLengkap.value = responseData.tanggal;
@@ -69,13 +100,13 @@ class AbsensiController extends GetxController {
       isSubmitting(true);
 
       int statusCode = 2;
-      if (label_status == 'Sakit') statusCode = 3;
+      if (label_status == 'Sakit') statusCode = 4;
 
       final payload = AbsensiGuru(
         mapel_kelas_id: mapel_kelas_id,
         status: statusCode,
         tanggal: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-        ketIzin: keterangan,
+        ket_izin: keterangan,
         materi_pembelajaran: null,
       );
 

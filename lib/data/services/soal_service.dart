@@ -3,11 +3,9 @@ import 'package:nurul_huda_mobile/core/utils/api.dart';
 import 'package:nurul_huda_mobile/data/models/soal.dart';
 
 class SoalService extends Api {
-  Future<Map<String, dynamic>> getMapelKelas() async {
+  Future<Map<String, dynamic>> getMapelKelas(int guruId) async {
     try {
-      int dummyGuruId = 15;
-
-      final res = await dio.get('/bank-soal/guru/$dummyGuruId');
+      final res = await dio.get('/bank-soal/guru/$guruId');
 
       return res.data as Map<String, dynamic>;
     } on DioException catch (e) {

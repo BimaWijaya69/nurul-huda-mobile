@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:nurul_huda_mobile/data/models/absensi_guru.dart';
 import 'package:nurul_huda_mobile/data/services/absensi_service.dart';
+import 'package:nurul_huda_mobile/views/auth/auth_controller.dart';
 
 class RekapAbsensiController extends GetxController {
   final AbsensiService _service = AbsensiService();
@@ -10,6 +10,7 @@ class RekapAbsensiController extends GetxController {
   var rekapData = Rxn<RekapAbsensiModel>();
 
   var filterStatus = RxnString();
+  var filterDate = RxnInt();
 
   @override
   void onInit() {
@@ -18,10 +19,11 @@ class RekapAbsensiController extends GetxController {
   }
 
   Future<void> fetchRekap() async {
+    int? guruId = AuthController.to.currentUser.value?.id;
     try {
       isLoading(true);
       var data = await _service.getRekapBulanan(
-          guruId: 15,
+          guruId: guruId!,
           bulan: selectedDate.value.month,
           tahun: selectedDate.value.year);
       rekapData.value = data;
@@ -47,6 +49,21 @@ class RekapAbsensiController extends GetxController {
       filterStatus.value = null;
     } else {
       filterStatus.value = status;
+      filterDate.value = null;
+    }
+  }
+
+  void setFilterDate(int? day) {
+    if (day == null) {
+      filterDate.value = null;
+      return;
+    }
+
+    if (filterDate.value == day) {
+      filterDate.value = null;
+    } else {
+      filterDate.value = day;
+      filterStatus.value = null;
     }
   }
 
@@ -63,10 +80,17 @@ class RekapAbsensiController extends GetxController {
 
   List<AbsensiDetail> get filteredDetails {
     if (rekapData.value == null) return [];
-    if (filterStatus.value == null) return rekapData.value!.detail;
 
-    return rekapData.value!.detail
-        .where((d) => d.status == filterStatus.value)
-        .toList();
+    var list = rekapData.value!.detail;
+
+    if (filterStatus.value != null) {
+      list = list.where((d) => d.status == filterStatus.value).toList();
+    }
+
+    if (filterDate.value != null) {
+      list = list.where((d) => d.tanggal?.day == filterDate.value).toList();
+    }
+
+    return list;
   }
 }

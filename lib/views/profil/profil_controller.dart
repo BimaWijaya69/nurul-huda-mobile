@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
+import 'package:nurul_huda_mobile/data/services/auth_service.dart';
+import 'package:nurul_huda_mobile/views/auth/auth_controller.dart';
 
 class TeacherModel {
   final String id;
@@ -16,6 +19,7 @@ class TeacherModel {
 }
 
 class ProfilController extends GetxController {
+  final AuthService _authService = AuthService();
   var teacher = TeacherModel(
     id: 'GR-070326001',
     name: 'Ustadz Ahmad Fulan, Lc.',
@@ -57,6 +61,35 @@ class ProfilController extends GetxController {
   }
 
   void logout() {
-    // Get.offAllNamed('/login');
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            style:
+                ElevatedButton.styleFrom(backgroundColor: Colors.red.shade700),
+            onPressed: () async {
+              Get.dialog(
+                const Center(child: CircularProgressIndicator()),
+                barrierDismissible: false,
+              );
+
+              bool isSuccess = await _authService.logout();
+
+              if (isSuccess) {
+                AuthController.to.currentUser.value = null;
+                Get.offAllNamed(Routes.STARTED);
+              }
+            },
+            child: const Text('Logout', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 }
