@@ -8,4 +8,5 @@ abstract class Routes {
   static const EDIT_ABSENSI = '/edit-absensi';
   static const REKAP_ABSENSI = '/rekap-absensi';
   static const CREATE_NILAI = '/create-nilai';
+  static const SCAN_QR = '/scan-qr';
 }

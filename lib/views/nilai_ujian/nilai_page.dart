@@ -134,20 +134,24 @@ class DaftarNilaiPage extends GetView<NilaiUjianController> {
       itemCount: controller.listMapel.length,
       itemBuilder: (context, index) {
         final mapel = controller.listMapel[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-          child: _buildMapelCard(mapel),
-        );
+        return _buildMapelCard(mapel);
       },
     );
   }
 
+  // --- KARTU MAPEL DAFTAR NILAI ---
   Widget _buildMapelCard(MapelUjianItem mapel) {
+    bool isDinilai = mapel.sudahDinilai;
+
     return Container(
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        // Border hijau muncul jika sudah dinilai
+        border: Border.all(
+          color: isDinilai ? _green.withOpacity(0.5) : Colors.transparent,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -156,110 +160,111 @@ class DaftarNilaiPage extends GetView<NilaiUjianController> {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              // Icon Kiri
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: _green.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          // --- LOGIKA KLIK PINDAH KE SINI ---
+          onTap: () {
+            Get.toNamed(Routes.CREATE_NILAI,
+                arguments: {'mapel': mapel, 'isEdit': isDinilai});
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // IKON SEBELAH KIRI (Berubah sesuai status)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: isDinilai
+                        ? Colors.green.shade50
+                        : _green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    isDinilai
+                        ? Icons.check_circle_rounded
+                        : Icons.menu_book_rounded,
+                    color: _green,
+                    size: 28,
+                  ),
                 ),
-                child: const Icon(Icons.menu_book_rounded, color: _green),
-              ),
-              const SizedBox(width: 12),
+                const SizedBox(width: 16),
 
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      mapel.nama_mapel,
-                      style: const TextStyle(
+                // DETAIL TEKS DI TENGAH
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        mapel.nama_mapel,
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'الصف ${ArabicHelper.getKelasArab(mapel.kelas_id)}',
-                      style:
-                          TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                    ),
-                  ],
-                ),
-              ),
-
-              _buildStatusBadge(mapel.sudahDinilai == true),
-            ],
-          ),
-
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0),
-            child: Divider(height: 1, color: Color(0xFFE2E8F0)),
-          ),
-
-          // Tombol Aksi di Kanan Bawah
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (!mapel.sudahDinilai) ...[
-                ElevatedButton.icon(
-                  onPressed: () => Get.toNamed(Routes.CREATE_NILAI, arguments: {
-                    'mapel': mapel,
-                    'isEdit': mapel.sudahDinilai
-                  }),
-                  icon: const Icon(Icons.edit_document,
-                      size: 18, color: Colors.white),
-                  label: const Text('Input Nilai'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _green,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // Tag Kelas oranye (Agar konsisten dengan halaman lain)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'الصف ${ArabicHelper.getKelasArab(mapel.kelas_id)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.orange.shade700,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ] else ...[
-                OutlinedButton.icon(
-                  onPressed: () => Get.toNamed(Routes.CREATE_NILAI, arguments: {
-                    'mapel': mapel,
-                    'isEdit': mapel.sudahDinilai
-                  }),
-                  icon: const Icon(Icons.visibility_outlined,
-                      size: 18, color: _green),
-                  label: const Text('Lihat Nilai'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: _green,
-                    side: const BorderSide(color: _green),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+
+                // INDIKATOR SEBELAH KANAN
+                if (isDinilai)
+                  const Text(
+                    'Sudah Dinilai',
+                    style: TextStyle(
+                      color: _green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  )
+                else
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Belum Dinilai',
+                          style: TextStyle(
+                            color: Colors.red.shade600,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.chevron_right_rounded,
+                          color: Colors.grey),
+                    ],
                   ),
-                ),
               ],
-            ],
+            ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusBadge(bool isDinilai) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: isDinilai ? const Color(0xFFD1FAE5) : const Color(0xFFFEE2E2),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        isDinilai ? 'Selesai' : 'Belum',
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: isDinilai ? const Color(0xFF059669) : const Color(0xFFDC2626),
         ),
       ),
     );

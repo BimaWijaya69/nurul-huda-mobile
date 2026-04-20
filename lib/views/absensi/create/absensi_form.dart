@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:nurul_huda_mobile/data/models/santri.dart';
 import 'package:nurul_huda_mobile/views/absensi/create/absensi_form_controller.dart';
 import 'package:nurul_huda_mobile/views/widgets/custom_text_field.dart';
+import 'package:nurul_huda_mobile/widget/skeleton_absensi.dart';
 
 class AbsensiForm extends StatefulWidget {
   const AbsensiForm({Key? key}) : super(key: key);
@@ -184,10 +185,11 @@ class _AbsensiFormState extends State<AbsensiForm> {
 
           Obx(() {
             if (controller.isLoading.value) {
-              return const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(20),
-                      child: CircularProgressIndicator(color: _green)));
+              return Column(
+                children: List.generate(4, (index) {
+                  return const SkeletonAbsensiRow();
+                }),
+              );
             }
 
             if (controller.filteredSantri.isEmpty) {

@@ -135,6 +135,7 @@ class SoalPage extends StatelessWidget {
     );
   }
 
+// --- KARTU MAPEL BANK SOAL DINAMIS ---
   Widget _buildMapelCard({
     required String mapel,
     required int mapel_kelas_id,
@@ -149,8 +150,11 @@ class SoalPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        // Border hijau muncul hanya jika soal SUDAH dibuat
         border: Border.all(
-          color: isCreated ? _green.withOpacity(0.5) : Colors.transparent,
+          color: isCreated
+              ? const Color(0xFF1B7A3E).withOpacity(0.5)
+              : Colors.transparent,
         ),
         boxShadow: [
           BoxShadow(
@@ -164,7 +168,6 @@ class SoalPage extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          // --- LOGIKA TOMBOL DIPINDAH KE SINI ---
           onTap: () async {
             if (!isCreated) {
               var result = await Get.toNamed(Routes.CREATE_SOAL, arguments: {
@@ -173,7 +176,6 @@ class SoalPage extends StatelessWidget {
                 'semester': semester,
                 'nama_mapel_kelas': namaMapelKelas,
               });
-
               if (result == true) {
                 controller.fetchMapelKelas();
               }
@@ -190,20 +192,20 @@ class SoalPage extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                // IKON SEBELAH KIRI
+                // IKON SEBELAH KIRI (Berubah sesuai status)
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: isCreated
                         ? Colors.green.shade50
-                        : _green.withOpacity(0.1),
+                        : const Color(0xFF1B7A3E).withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     isCreated
                         ? Icons.check_circle_rounded
                         : Icons.menu_book_rounded,
-                    color: _green,
+                    color: const Color(0xFF1B7A3E),
                     size: 28,
                   ),
                 ),
@@ -258,17 +260,40 @@ class SoalPage extends StatelessWidget {
                 ),
 
                 // INDIKATOR SEBELAH KANAN
-                isCreated
-                    ? const Text(
-                        'Selesai',
-                        style: TextStyle(
-                          color: _green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                if (isCreated)
+                  const Text(
+                    'Sudah Dibuat',
+                    style: TextStyle(
+                      color: Color(0xFF1B7A3E),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  )
+                else
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      )
-                    : const Icon(Icons.chevron_right_rounded,
-                        color: Colors.grey),
+                        child: Text(
+                          'Belum Dibuat',
+                          style: TextStyle(
+                            color: Colors.red.shade600,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.chevron_right_rounded,
+                          color: Colors.grey),
+                    ],
+                  ),
               ],
             ),
           ),

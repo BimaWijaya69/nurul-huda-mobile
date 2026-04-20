@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nurul_huda_mobile/data/models/nilai_ujian.dart';
 import 'package:nurul_huda_mobile/data/services/nilai_uijan_service.dart';
+import 'package:nurul_huda_mobile/views/auth/auth_controller.dart';
 
 class NilaiUjianController extends GetxController {
   final NilaiUjianService _service = NilaiUjianService();
@@ -28,9 +29,8 @@ class NilaiUjianController extends GetxController {
       isError(false);
       errorMessage('');
 
-      int guruId = 5;
-
-      var data = await _service.getMapelGuru(guruId);
+      int? guruId = AuthController.to.currentUser.value?.id;
+      var data = await _service.getMapelGuru(guruId!);
 
       listMapel.assignAll(data);
 

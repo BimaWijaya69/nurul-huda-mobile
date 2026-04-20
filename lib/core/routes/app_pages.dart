@@ -3,6 +3,7 @@ import 'package:nurul_huda_mobile/views/absensi/create/absensi_form.dart';
 import 'package:nurul_huda_mobile/views/notifikasi/notifikasi_page.dart';
 import 'package:nurul_huda_mobile/views/absensi/rekap/rekap_page.dart';
 import 'package:nurul_huda_mobile/views/nilai_ujian/create/nilai_form.dart';
+import 'package:nurul_huda_mobile/views/scan_qr/scan_qr_page.dart';
 import 'package:nurul_huda_mobile/views/soal/create/soal_form.dart';
 import 'package:nurul_huda_mobile/views/soal/preview/soal_preview.dart';
 import 'package:nurul_huda_mobile/views/started/get_started.dart';
@@ -53,6 +54,11 @@ class AppPages {
     GetPage(
       name: '/create-nilai',
       page: () => const NilaiFormPage(),
+      transition: Transition.leftToRight,
+    ),
+    GetPage(
+      name: '/scan-qr',
+      page: () => const ScanQrPage(),
       transition: Transition.leftToRight,
     ),
   ];

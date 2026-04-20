@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:nurul_huda_mobile/data/models/santri.dart';
 import 'package:nurul_huda_mobile/helpers/arabic_helper.dart';
 import 'package:nurul_huda_mobile/views/nilai_ujian/create/nilai_form_controller.dart';
+import 'package:nurul_huda_mobile/widget/skeleton_nilai.dart';
 
 class NilaiFormPage extends GetView<NilaiUjianFormController> {
   const NilaiFormPage({Key? key}) : super(key: key);
@@ -22,8 +23,14 @@ class NilaiFormPage extends GetView<NilaiUjianFormController> {
           Expanded(
             child: Obx(() {
               if (controller.isLoading.value) {
-                return const Center(
-                    child: CircularProgressIndicator(color: _green));
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: 6, // Munculkan 6 baris dummy skeleton
+                  itemBuilder: (context, index) {
+                    return const SkeletonSantriRow();
+                  },
+                );
               }
 
               if (controller.filteredSantri.isEmpty) {
@@ -247,7 +254,6 @@ class NilaiFormPage extends GetView<NilaiUjianFormController> {
           SizedBox(
             width: 70,
             child: TextField(
-              // 👇 DI SINI MAGIC NYA: Ambil controller dari Map di Controller GetX 👇
               controller: controller.nilaiControllers[santri.id!],
               keyboardType: TextInputType.number,
               textAlign: TextAlign.center,

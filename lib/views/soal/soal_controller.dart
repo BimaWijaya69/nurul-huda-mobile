@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:nurul_huda_mobile/data/models/mapel_kelas.dart';
 import 'package:nurul_huda_mobile/data/models/periode.dart';
 import 'package:nurul_huda_mobile/data/services/soal_service.dart';
+import 'package:nurul_huda_mobile/views/auth/auth_controller.dart';
 
 class SoalController extends GetxController {
   final SoalService _service = SoalService();
@@ -27,7 +28,8 @@ class SoalController extends GetxController {
       isError(false);
       errorMessage('');
 
-      var response = await _service.getMapelKelas();
+      int? guruId = AuthController.to.currentUser.value?.id;
+      var response = await _service.getMapelKelas(guruId!);
       periodeAktif.value = Periode.fromJson(response);
       List<dynamic> rawData = (response['data'] as List<dynamic>?) ?? [];
 

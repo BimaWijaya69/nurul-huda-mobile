@@ -2,6 +2,7 @@ import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:get/get.dart';
+import 'package:nurul_huda_mobile/data/services/auth_service.dart';
 
 class GetStartedScreen extends StatefulWidget {
   const GetStartedScreen({super.key});
@@ -12,6 +13,8 @@ class GetStartedScreen extends StatefulWidget {
 
 class _GetStartedScreenState extends State<GetStartedScreen>
     with TickerProviderStateMixin {
+  final AuthService _authService = AuthService();
+
   late AnimationController _logoController;
   late AnimationController _textController;
   late AnimationController _floatController;
@@ -71,7 +74,17 @@ class _GetStartedScreenState extends State<GetStartedScreen>
     _textController.forward();
     // Auto redirect setelah semua animasi selesai
     await Future.delayed(const Duration(milliseconds: 2000));
-    Get.offAllNamed(Routes.LAYOUT);
+    await _checkLoginStatus();
+  }
+
+  _checkLoginStatus() async {
+    bool isLogin = await _authService.isLoggedIn();
+
+    if (isLogin) {
+      Get.offAllNamed(Routes.LAYOUT);
+    } else {
+      Get.offAllNamed(Routes.SCAN_QR);
+    }
   }
 
   @override

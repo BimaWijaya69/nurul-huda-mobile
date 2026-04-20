@@ -56,7 +56,7 @@ class ProfilPage extends GetView<ProfilController> {
                             fontWeight: FontWeight.bold),
                       ),
                       secondChild: Text(
-                        controller.teacher.value.name,
+                        controller.currentUser?.name ?? 'Nama Guru',
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -97,7 +97,7 @@ class ProfilPage extends GetView<ProfilController> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            controller.teacher.value.name,
+                            controller.currentUser?.name ?? 'Nama Guru',
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
@@ -114,7 +114,9 @@ class ProfilPage extends GetView<ProfilController> {
                                   color: _gold.withOpacity(0.5), width: 1),
                             ),
                             child: Text(
-                              controller.teacher.value.role,
+                              controller.currentUser?.role == '2'
+                                  ? 'Guru'
+                                  : controller.currentUser?.role ?? 'Guru',
                               style: const TextStyle(
                                   color: _gold,
                                   fontWeight: FontWeight.bold,
@@ -170,18 +172,12 @@ class ProfilPage extends GetView<ProfilController> {
                           ),
                           child: Column(
                             children: [
-                              _buildInfoTile(Icons.badge_outlined,
-                                  'Nomor Induk', controller.teacher.value.id),
+                              _buildInfoTile(Icons.badge_outlined, 'Kode Guru',
+                                  controller.currentUser?.kodeGuru ?? '-'),
                               const Divider(
                                   height: 1,
                                   thickness: 1,
                                   color: Color(0xFFF0F0F0)),
-                              const Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Color(0xFFF0F0F0)),
-                              _buildInfoTile(Icons.email_outlined, 'Email',
-                                  controller.teacher.value.email),
                             ],
                           ),
                         ),
@@ -267,7 +263,7 @@ class ProfilPage extends GetView<ProfilController> {
                       size: 150, color: Colors.grey.shade800),
                   const SizedBox(height: 16),
                   Text(
-                    controller.teacher.value.id,
+                    controller.currentUser?.kodeGuru ?? 'KODE-TIDAK-DITEMUKAN',
                     style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,

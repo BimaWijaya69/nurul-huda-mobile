@@ -3,14 +3,14 @@ class AbsensiGuru {
   final int status;
   final String tanggal;
   final String? materi_pembelajaran;
-  final String? ketIzin;
+  final String? ket_izin;
 
   AbsensiGuru({
     required this.mapel_kelas_id,
     required this.status,
     required this.tanggal,
     this.materi_pembelajaran,
-    this.ketIzin,
+    this.ket_izin,
   });
 
   Map<String, dynamic> toJson() {
@@ -19,7 +19,7 @@ class AbsensiGuru {
       'status': status,
       'tanggal': tanggal,
       'materi_pembelajaran': materi_pembelajaran,
-      'ket_izin': ketIzin,
+      'ket_izin': ket_izin,
     };
   }
 }
@@ -57,11 +57,13 @@ class AbsensiSummary {
   final int hadir;
   final int izin;
   final int alfa;
+  final int sakit;
 
   AbsensiSummary({
     this.hadir = 0,
     this.izin = 0,
     this.alfa = 0,
+    this.sakit = 0,
   });
 
   factory AbsensiSummary.fromJson(Map<String, dynamic> json) {
@@ -69,17 +71,17 @@ class AbsensiSummary {
       hadir: json['hadir'] ?? 0,
       izin: json['izin'] ?? 0,
       alfa: json['alfa'] ?? 0,
+      sakit: json['sakit'] ?? 0,
     );
   }
 }
 
-// Model khusus untuk list detail di bawah kalender
 class AbsensiDetail {
   final DateTime? tanggal;
   final String status;
   final String namaMapel;
   final int kelasId;
-  final String? keterangan; // Nullable karena kalau hadir/alfa biasanya kosong
+  final String? keterangan;
 
   AbsensiDetail({
     this.tanggal,
@@ -91,7 +93,6 @@ class AbsensiDetail {
 
   factory AbsensiDetail.fromJson(Map<String, dynamic> json) {
     return AbsensiDetail(
-      // Konversi YYYY-MM-DD jadi DateTime biar gampang diolah kalender
       tanggal:
           json['tanggal'] != null ? DateTime.tryParse(json['tanggal']) : null,
       status: json['status'] ?? 'none',

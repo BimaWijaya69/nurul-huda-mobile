@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
+import 'package:nurul_huda_mobile/views/auth/auth_controller.dart';
 import 'package:nurul_huda_mobile/views/home/home_controller.dart';
 import 'package:nurul_huda_mobile/views/home/widget/jadwal_mengajar_widget.dart';
+import 'package:nurul_huda_mobile/views/layout_controller.dart';
 import 'package:nurul_huda_mobile/widget/skeleton_jadwal_mengajar.dart';
 
-// 👇 BERUBAH JADI STATELESS WIDGET 👇
 class HomePage extends StatelessWidget {
   HomePage({super.key});
 
-  // Panggil controller di sini
   final HomeController controller = Get.put(HomeController());
+  final LayoutController layoutController = Get.find<LayoutController>();
 
   static const _green = Color(0xFF1B7A3E);
   static const _darkGreen = Color(0xFF0D4A24);
@@ -107,8 +108,8 @@ class HomePage extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 2),
-                            const Text(
-                              'Nurul Huda',
+                            Text(
+                              controller.namaGuru.value,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -155,15 +156,15 @@ class HomePage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const SizedBox(width: 4),
-                        Text(
-                          'MANGUNSARI, TEKUNG, LUMAJANG',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.85),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 1,
-                          ),
-                        ),
+                        Obx(() => Text(
+                              controller.currentAddress.value,
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.85),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1,
+                              ),
+                            )),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -201,7 +202,7 @@ class HomePage extends StatelessWidget {
                       children: [
                         _headerChip(Icons.schedule_rounded, 'Jadwal Absensi',
                             () {
-                          print("ok");
+                          layoutController.tabIndex.value = 1;
                         }),
                         _headerChip(
                             Icons.assignment_turned_in_rounded, 'Rekap Absensi',

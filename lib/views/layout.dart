@@ -21,7 +21,7 @@ class Layout extends StatelessWidget {
       SoalPage(),
       AbsensiPage(),
       HomePage(),
-      const DaftarNilaiPage(),
+      DaftarNilaiPage(),
       const ProfilPage(),
     ];
 
