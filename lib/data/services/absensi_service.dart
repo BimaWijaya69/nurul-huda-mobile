@@ -64,4 +64,66 @@ class AbsensiService extends Api {
           e.response?.data['message'] ?? 'Gagal menyimpan absensi santri');
     }
   }
+
+  Future<Map<String, dynamic>> getDetailAbsensi(
+      int mapelKelasId, int kelasId, String tanggal) async {
+    try {
+      final response = await dio.get('/absensi-guru/detail', queryParameters: {
+        'mapel_kelas_id': mapelKelasId,
+        'kelas_id': kelasId,
+        'tanggal': tanggal,
+      });
+
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        var data = response.data['data'];
+
+        List<SantriAbsenUi> listSantri = [];
+        for (var item in data['list_absensi']) {
+          listSantri.add(SantriAbsenUi(
+            santri: Santri.fromJson(item['santri']),
+            status: item['status'] != null
+                ? int.parse(item['status'].toString())
+                : 1,
+          ));
+        }
+
+        return {
+          'materi': data['materi_pembelajaran'] ?? '',
+          'list_santri': listSantri,
+        };
+      } else {
+        throw Exception('Gagal memuat detail absensi');
+      }
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Terjadi kesalahan jaringan');
+    }
+  }
+
+  Future<RekapAbsensiModel> getRekapBulanan({
+    required int guruId,
+    required int bulan,
+    required int tahun,
+  }) async {
+    try {
+      final response = await dio.get(
+        '/absensi-guru/rekap-bulanan',
+        queryParameters: {
+          'guru_id': guruId,
+          'bulan': bulan,
+          'tahun': tahun,
+        },
+      );
+
+      if (response.statusCode == 200 && response.data['status'] == 'success') {
+        return RekapAbsensiModel.fromJson(response.data['data']);
+      } else {
+        throw Exception(
+            response.data['message'] ?? 'Gagal mengambil rekap absensi');
+      }
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Terjadi kesalahan koneksi ke server');
+    }
+  }
 }

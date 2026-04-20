@@ -21,6 +21,7 @@ class AbsensiSantriFormController extends GetxController {
   late int jadwal_mapel_kelas_id;
   late int kelas_id;
   late String nama_mapel_kelas;
+  bool isEditMode = false;
 
   var listSantriUi = <SantriAbsenUi>[].obs;
   var filteredSantri = <SantriAbsenUi>[].obs;
@@ -35,6 +36,7 @@ class AbsensiSantriFormController extends GetxController {
           "${jadwal.nama_mapel} - ${ArabicHelper.getKelasArab(jadwal.kelas_id)}";
 
       kelas_id = Get.arguments['kelas_id'] ?? 1;
+      isEditMode = Get.arguments['isEdit'] ?? false;
     }
 
     searchController.addListener(() {
@@ -48,7 +50,11 @@ class AbsensiSantriFormController extends GetxController {
       }
     });
 
-    fetchDaftarSantri();
+    if (isEditMode) {
+      fetchDetailAbsensiEdit();
+    } else {
+      fetchDaftarSantri();
+    }
   }
 
   Future<void> fetchDaftarSantri() async {
@@ -64,6 +70,27 @@ class AbsensiSantriFormController extends GetxController {
       filteredSantri.assignAll(uiModels);
     } catch (e) {
       Get.snackbar('Error', e.toString(),
+          backgroundColor: Colors.red, colorText: Colors.white);
+    } finally {
+      isLoading(false);
+    }
+  }
+
+  Future<void> fetchDetailAbsensiEdit() async {
+    try {
+      isLoading(true);
+      String hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+      var detailData = await _absensiService.getDetailAbsensi(
+          jadwal_mapel_kelas_id, kelas_id, hariIni);
+
+      materiController.text = detailData['materi'];
+
+      List<SantriAbsenUi> uiModels = detailData['list_santri'];
+      listSantriUi.assignAll(uiModels);
+      filteredSantri.assignAll(uiModels);
+    } catch (e) {
+      Get.snackbar('Error', 'Gagal memuat data edit: ${e.toString()}',
           backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading(false);
@@ -135,7 +162,10 @@ class AbsensiSantriFormController extends GetxController {
 
         if (suksesSantri) {
           Get.back();
-          Get.snackbar('Sukses', 'Jurnal & Absensi santri berhasil disimpan!',
+          String pesansukses = isEditMode
+              ? 'Perubahan absensi berhasil disimpan!'
+              : 'Absensi berhasil disimpan!';
+          Get.snackbar('Sukses', pesansukses,
               backgroundColor: Colors.green, colorText: Colors.white);
 
           Get.find<AbsensiController>().fetchJadwalHariIni();

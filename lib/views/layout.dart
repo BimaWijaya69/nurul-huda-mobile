@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:nurul_huda_mobile/views/layout_controller.dart';
 import 'package:nurul_huda_mobile/views/home/home_page.dart';
 import 'package:nurul_huda_mobile/views/absensi/absensi_page.dart';
-import 'package:nurul_huda_mobile/views/nilai/nilai_page.dart';
+import 'package:nurul_huda_mobile/views/nilai_ujian/nilai_page.dart';
 import 'package:nurul_huda_mobile/views/profil/profil_page.dart';
 import 'package:nurul_huda_mobile/views/soal/soal_page.dart';
 
@@ -20,7 +20,7 @@ class Layout extends StatelessWidget {
     final List<Widget> pages = [
       SoalPage(),
       AbsensiPage(),
-      const HomePage(),
+      HomePage(),
       const DaftarNilaiPage(),
       const ProfilPage(),
     ];
@@ -75,14 +75,11 @@ class Layout extends StatelessWidget {
                 label: 'Absensi',
                 onTap: onTap,
               ),
-
-              // ── Center Button (Beranda) ──
               _buildCenterNavItem(
                 index: 2,
                 currentIndex: currentIndex,
                 onTap: onTap,
               ),
-
               _buildNavItem(
                 index: 3,
                 currentIndex: currentIndex,

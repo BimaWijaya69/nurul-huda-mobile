@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nurul_huda_mobile/core/routes/app_routes.dart';
+import 'package:nurul_huda_mobile/views/home/home_controller.dart';
 import 'package:nurul_huda_mobile/views/home/widget/jadwal_mengajar_widget.dart';
-import 'home_controller.dart';
+import 'package:nurul_huda_mobile/widget/skeleton_jadwal_mengajar.dart';
 
-class HomePage extends GetView<HomeController> {
-  const HomePage({super.key});
+// 👇 BERUBAH JADI STATELESS WIDGET 👇
+class HomePage extends StatelessWidget {
+  HomePage({super.key});
+
+  // Panggil controller di sini
+  final HomeController controller = Get.put(HomeController());
 
   static const _green = Color(0xFF1B7A3E);
   static const _darkGreen = Color(0xFF0D4A24);
@@ -27,7 +32,9 @@ class HomePage extends GetView<HomeController> {
             ),
           ),
           RefreshIndicator(
-            onRefresh: controller.refreshHome,
+            onRefresh: () async {
+              await controller.refreshData();
+            },
             child: MediaQuery.removePadding(
               context: context,
               removeTop: true,
@@ -37,7 +44,6 @@ class HomePage extends GetView<HomeController> {
                   SliverToBoxAdapter(child: _buildHeader(context)),
                   SliverToBoxAdapter(child: _buildSearchBar()),
                   SliverToBoxAdapter(child: _buildJadwalSection()),
-                  SliverToBoxAdapter(child: _buildQuickCards()),
                   SliverToBoxAdapter(child: _buildNotifSection()),
                   const SliverToBoxAdapter(child: SizedBox(height: 24)),
                 ],
@@ -148,8 +154,6 @@ class HomePage extends GetView<HomeController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.location_on_rounded,
-                            color: _gold, size: 14),
                         const SizedBox(width: 4),
                         Text(
                           'MANGUNSARI, TEKUNG, LUMAJANG',
@@ -164,7 +168,7 @@ class HomePage extends GetView<HomeController> {
                     ),
                     const SizedBox(height: 8),
                     Obx(() => Text(
-                          controller.dayAndTimeStr,
+                          controller.jamSekarang.value,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 38,
@@ -173,7 +177,7 @@ class HomePage extends GetView<HomeController> {
                             fontFeatures: [FontFeature.tabularFigures()],
                           ),
                         )),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 14),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 18, vertical: 6),
@@ -182,7 +186,7 @@ class HomePage extends GetView<HomeController> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Obx(() => Text(
-                            controller.fullDateStr,
+                            controller.tanggalSekarang.value,
                             style: const TextStyle(
                               color: _gold,
                               fontSize: 16,
@@ -195,9 +199,15 @@ class HomePage extends GetView<HomeController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _headerChip(Icons.schedule_rounded, 'Jadwal Absensi'),
-                        _headerChip(Icons.assignment_turned_in_rounded,
-                            'Riwayat Absensi'),
+                        _headerChip(Icons.schedule_rounded, 'Jadwal Absensi',
+                            () {
+                          print("ok");
+                        }),
+                        _headerChip(
+                            Icons.assignment_turned_in_rounded, 'Rekap Absensi',
+                            () {
+                          Get.toNamed(Routes.REKAP_ABSENSI);
+                        }),
                       ],
                     ),
                   ],
@@ -210,27 +220,27 @@ class HomePage extends GetView<HomeController> {
     );
   }
 
-  Widget _headerChip(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.18),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
+  Widget _headerChip(IconData icon, String label, VoidCallback onPressed) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, color: Colors.white, size: 16),
+      label: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+        ),
       ),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.white, size: 16),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        backgroundColor: Colors.white.withOpacity(0.18),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(color: Colors.white.withOpacity(0.3)),
+        ),
       ),
     );
   }
@@ -293,127 +303,15 @@ class HomePage extends GetView<HomeController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: _gold,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Jadwal Mengajar',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1A1A2E)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          JadwalMengajarWidget(jadwalList: dummyJadwal),
-        ],
-      ),
-    );
-  }
+          Obx(() {
+            if (controller.isLoadingJadwal.value) {
+              return const JadwalMengajarSkeleton();
+            }
 
-  Widget _buildQuickCards() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildQuickCard(
-              icon: Icons.assignment_rounded,
-              label: 'Rekap\nAbsensi',
-              color: _green,
-              bgColor: const Color(0xFFE8F5EE),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _buildQuickCard(
-              icon: Icons.forum_rounded,
-              label: 'Info\nPesantren',
-              color: const Color(0xFFE8A020),
-              bgColor: const Color(0xFFFFF8E6),
-              badge: '3',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickCard({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required Color bgColor,
-    String? badge,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withOpacity(0.15)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(icon, color: color, size: 24),
-                if (badge != null)
-                  Positioned(
-                    right: 4,
-                    top: 4,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 1.5),
-                      ),
-                      child: Center(
-                        child: Text(badge,
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: color,
-              height: 1.3,
-            ),
-          ),
+            return JadwalMengajarWidget(
+              jadwalList: controller.listJadwal.toList(),
+            );
+          }),
         ],
       ),
     );

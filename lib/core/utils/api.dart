@@ -5,9 +5,9 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 class Api {
   final Dio dio = Dio(
     BaseOptions(
-      // baseUrl: "http://192.168.1.4:8000/api",
-      // baseUrl: "http://192.168.1.3:8000/api",
-      baseUrl: "http://10.219.53.71:8000/api",
+      baseUrl: "http://192.168.1.9:8000/api",
+      // baseUrl: "http://192.168.137.2:8000/api",
+      // baseUrl: "http://10.219.53.72:8000/api",
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {
